@@ -1,28 +1,22 @@
+/* Neutral by design: system type, plain greys. The only colour is each certainty's dot. */
 :root {
-  --bg: #f2f3ef;
-  --ink: #1c2420;
-  --muted: #52605a;
-  --rule: #d3d8d2;
-  --gabbro: #2f4a3f;
-  --doc: #2e6b4f;
-  --int: #2f5d8a;
+  --bg: #ffffff;
+  --ink: #111111;
+  --muted: #6b6b6b;
+  --rule: #e2e2e2;
   --hyp: #9a5413;
-  --imag: #6b5a86;
-  --absent: #5e6762;
-  --surface: rgb(242 243 239 / 0.86);
-  --display: 'Gentium Book Plus', Georgia, serif;
-  --label: 'IBM Plex Sans Condensed', 'Arial Narrow', sans-serif;
+  --surface: rgb(255 255 255 / 0.88);
+  --font: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   color-scheme: light dark;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #121815;
-    --ink: #e6ebe7;
-    --muted: #a3b0a9;
-    --rule: #2c3631;
-    --gabbro: #9cc2b0;
-    --surface: rgb(18 24 21 / 0.82);
+    --bg: #1c1c1e;
+    --ink: #f2f2f2;
+    --muted: #a0a0a0;
+    --rule: #3a3a3c;
+    --surface: rgb(28 28 30 / 0.86);
   }
 }
 
@@ -37,7 +31,7 @@ body {
   overflow: hidden;
   background: #000;
   color: var(--ink);
-  font-family: var(--display);
+  font-family: var(--font);
   -webkit-font-smoothing: antialiased;
   -webkit-text-size-adjust: 100%;
 }
@@ -48,7 +42,7 @@ h2 {
 }
 
 :focus-visible {
-  outline: 2px solid var(--gabbro);
+  outline: 2px solid var(--ink);
   outline-offset: 3px;
 }
 
@@ -66,7 +60,7 @@ h2 {
   display: block;
 }
 
-/* Labels: small condensed capitals. */
+/* Small secondary text. */
 .label__world,
 .pill,
 .prompt,
@@ -74,11 +68,8 @@ h2 {
 .card__meta,
 .card__note,
 .debug {
-  font-family: var(--label);
   font-size: 13px;
   font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
 .label {
@@ -105,20 +96,18 @@ h2 {
 }
 
 .pill {
-  display: inline-block;
-  padding: 2px 9px;
-  border: 1px solid var(--pill);
-  border-radius: 999px;
-  color: var(--pill);
-  font-size: 12px;
-  line-height: 1.5;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  white-space: nowrap;
 }
-@media (prefers-color-scheme: dark) {
-  /* The certainty colours are dark; lift them a little to stay readable on a dark surface. */
-  .pill {
-    color: color-mix(in srgb, var(--pill) 55%, white);
-    border-color: color-mix(in srgb, var(--pill) 55%, white);
-  }
+.pill::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--pill);
 }
 
 .prompt {
@@ -127,7 +116,7 @@ h2 {
   bottom: max(150px, calc(env(safe-area-inset-bottom) + 150px));
   transform: translateX(-50%);
   padding: 8px 14px;
-  border-radius: 999px;
+  border-radius: 8px;
   background: var(--surface);
   backdrop-filter: blur(8px);
   white-space: nowrap;
@@ -145,14 +134,14 @@ h2 {
   pointer-events: none;
 }
 .caption__line {
-  padding: 10px 16px 9px;
-  border-radius: 12px;
-  background: var(--surface);
-  backdrop-filter: blur(8px);
+  padding: 8px 14px;
+  border-radius: 6px;
+  background: rgb(0 0 0 / 0.72);
+  color: #fff;
   text-align: center;
 }
 .caption__text {
-  font-size: 18px;
+  font-size: 17px;
   line-height: 1.35;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -161,9 +150,10 @@ h2 {
   overflow: hidden;
 }
 .caption__source {
-  margin-top: 4px;
-  color: var(--muted);
-  font-size: 11px;
+  margin-top: 2px;
+  color: rgb(255 255 255 / 0.65);
+  font-size: 12px;
+  font-weight: 400;
 }
 .caption__line--secondary {
   opacity: 0.75;
@@ -211,9 +201,9 @@ h2 {
   gap: 10px;
   padding: 14px 22px 20px;
   border: 1px solid var(--rule);
-  border-radius: 18px;
+  border-radius: 14px;
   background: var(--bg);
-  box-shadow: 0 12px 40px rgb(0 0 0 / 0.25);
+  box-shadow: 0 8px 30px rgb(0 0 0 / 0.2);
   touch-action: none;
   transition: transform 0.15s ease;
   animation: rise 0.25s ease;
@@ -238,15 +228,15 @@ h2 {
   gap: 12px;
 }
 .card h2 {
-  font-size: 24px;
-  font-weight: 700;
-  line-height: 1.2;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.25;
 }
 .card h2:focus {
   outline: none;
 }
 .card__text {
-  font-size: 18px;
+  font-size: 16px;
   line-height: 1.45;
 }
 .card__meta {
@@ -289,7 +279,7 @@ h2 {
   border-radius: 8px;
   background: var(--bg);
   color: var(--ink);
-  font: 16px var(--display);
+  font: 15px var(--font);
   cursor: pointer;
 }
 .claims-nav button:focus {

@@ -1,11 +1,12 @@
 // Desktop and mobile input. A drag that starts on the stone turns the dial (a swipe on the stone
 // on a phone); a drag anywhere else looks around. A short tap picks up the stone or opens a claim.
 import { Raycaster, Vector2, type Camera, type Object3D } from 'three';
-import { SCROLL_PER_WORLD, SWIPE_PX_PER_WORLD, type Dial } from './dial.ts';
+import { SWIPE_PX_PER_WORLD, type Dial } from './dial.ts';
 import type { Look } from './look.ts';
 import type { Store } from './state.ts';
 
 const TAP_SLOP_PX = 6;
+const WHEEL_PAUSE_MS = 450;
 
 export type ControlsOptions = {
   readonly canvas: HTMLCanvasElement;
@@ -100,13 +101,21 @@ export const attachControls = (o: ControlsOptions): void => {
   o.canvas.addEventListener('pointerup', end);
   o.canvas.addEventListener('pointercancel', end);
 
+  let lastWheelStep = 0;
   o.canvas.addEventListener(
     'wheel',
     (e) => {
       if (!o.store.get().started) return;
       e.preventDefault();
       o.onActivity();
-      o.dial.nudge(e.deltaY / SCROLL_PER_WORLD, performance.now());
+      // One step per scroll gesture: trackpads send many small events, so wait for a pause.
+      const now = performance.now();
+      if (Math.abs(e.deltaY) < 4 || now - lastWheelStep < WHEEL_PAUSE_MS) {
+        lastWheelStep = Math.abs(e.deltaY) < 4 ? lastWheelStep : now;
+        return;
+      }
+      lastWheelStep = now;
+      o.dial.step(e.deltaY > 0 ? 1 : -1, now);
     },
     { passive: false },
   );

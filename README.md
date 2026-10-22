@@ -4,7 +4,7 @@ An open WebXR framework for showing who interprets a heritage object, on what ev
 
 The visitor picks up a stone. Turning the stone moves through worlds. Each world is a period or a witness,
 and fills the whole surroundings: sky, ground, light, colour, voice and the stone itself. Each world's visual
-style shows how certain it is. Halfway between two worlds both are visible and both voices can be heard. Glowing
+style shows how certain it is. Halfway between two worlds both are visible at once. The worlds form a ring, so the stone turns endlessly. Glowing
 points open the claim behind a detail: who says it, how certain it is, its source, and whether an expert has
 approved it. It runs in a desktop or mobile browser and in VR on Meta Quest 3.
 
@@ -30,7 +30,7 @@ same paradata inside the 3D files (glTF `extras`) and as JSON-LD.
 | ------- | ------------ | ---------------------------------------- | ------------------------------------------------------- |
 | World A | documented   | solid, lit, matte                        | archaeology                                             |
 | World B | imagined     | an engraving on sepia paper              | European imagination                                    |
-| World C | absent voice | near-dark, dashed outlines on the ground | ancient self-depiction, heard quietly and from far away |
+| World C | absent voice | near-dark, dashed outlines on the ground | ancient self-depiction, heard more quietly |
 
 Controls, the on-screen UI and accessibility are described in [docs/interaction.md](docs/interaction.md); the
 look of each certainty in [docs/certainty.md](docs/certainty.md).
@@ -97,12 +97,11 @@ blended are drawn.
 - World styles exist for three certainties (documented, imagined, absent voice). Interpreted, hypothesis
   and unknown can label claims, but no world can use them yet.
 - Hand tracking is not handled yet: turning the dial needs a controller's grip button.
-- `LICENSE-ASSETS` still needs the name, voice and licence of the speech model used for the demo voices.
 
 ## Licences
 
 - Code: Apache License 2.0, see [LICENSE](LICENSE).
 - Our content, docs and voices: CC BY 4.0, see [LICENSE-ASSETS](LICENSE-ASSETS).
-- Fonts: Gentium Book Plus and IBM Plex Sans Condensed, both SIL Open Font License 1.1, bundled through Fontsource.
+- Demo voices: generated with Kokoro TTS (Kokoro-82M, voice af_nicole, Apache-2.0); see LICENSE-ASSETS.
 - No third-party images, plans, engravings, photographs or models, and no AI-generated images. Every visual is
   made in code. In VR, three.js loads the controller models from the WebXR Input Profiles CDN at runtime.

@@ -1,8 +1,5 @@
 // /editor: heritage experts review and approve claims. Changes are overrides in localStorage,
 // shown in the experience at once, and can be exported as the full content JSON.
-import '@fontsource/gentium-book-plus/latin-400.css';
-import '@fontsource/gentium-book-plus/latin-700.css';
-import '@fontsource/ibm-plex-sans-condensed/latin-500.css';
 import '../styles.css';
 import './editor.css';
 import rawContent from '../../content/demo.json';

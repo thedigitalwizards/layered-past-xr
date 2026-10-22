@@ -18,9 +18,10 @@ export const wrapText = (text: string, maxWidth: number, measure: (s: string) =>
       return lines;
     }, []);
 
-export const PANEL_COLOURS = { bg: '#F2F3EF', ink: '#1C2420', muted: '#52605A', rule: '#D3D8D2' } as const;
-export const DISPLAY_FONT = '"Gentium Book Plus", Georgia, serif';
-export const LABEL_FONT = '"IBM Plex Sans Condensed", "Arial Narrow", sans-serif';
+export const PANEL_COLOURS = { bg: '#FFFFFF', ink: '#111111', muted: '#6B6B6B', rule: '#E2E2E2' } as const;
+const SANS = 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+export const DISPLAY_FONT = SANS;
+export const LABEL_FONT = SANS;
 
 /** One line or a wrapped paragraph to draw on a panel. */
 export type Run = {
@@ -30,14 +31,14 @@ export type Run = {
   readonly weight?: number;
   readonly colour?: string;
   readonly gapAfter?: number;
-  /** Draw as an outlined pill in this colour (certainty labels). */
+  /** Draw with a dot in this colour before the text (certainty labels). */
   readonly pill?: string;
   readonly alpha?: number;
 };
 
 const fontOf = (run: Run) =>
   `${run.weight ?? (run.font === 'label' ? 500 : 400)} ${run.px}px ${run.font === 'label' ? LABEL_FONT : DISPLAY_FONT}`;
-const textOf = (run: Run) => (run.font === 'label' ? run.text.toUpperCase() : run.text);
+const textOf = (run: Run) => run.text;
 
 export type Panel = {
   readonly mesh: Mesh;
@@ -57,7 +58,7 @@ export const createPanel = (widthM: number, pxPerMetre: number, padPx = 48): Pan
     runs.map((run) => {
       ctx.font = fontOf(run);
       const lines = run.pill ? [textOf(run)] : wrapText(textOf(run), inner, (s) => ctx.measureText(s).width);
-      const height = run.pill ? run.px * 1.7 : lines.length * run.px * 1.32;
+      const height = run.pill ? run.px * 1.4 : lines.length * run.px * 1.32;
       return { run, lines, height };
     });
 
@@ -80,14 +81,15 @@ export const createPanel = (widthM: number, pxPerMetre: number, padPx = 48): Pan
         ctx.font = fontOf(run);
         ctx.textBaseline = 'top';
         if (run.pill) {
-          const w = ctx.measureText(lines[0]!).width + run.px * 1.4;
-          ctx.strokeStyle = ctx.fillStyle = run.pill;
-          ctx.lineWidth = Math.max(2, run.px * 0.08);
+          // A coloured dot and the written certainty, as in the 2D labels.
+          const r = run.px * 0.3;
+          ctx.fillStyle = run.pill;
           ctx.beginPath();
-          ctx.roundRect(padPx, y, w, height, height / 2);
-          ctx.stroke();
+          ctx.arc(padPx + r, y + height / 2, r, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = PANEL_COLOURS.muted;
           ctx.textBaseline = 'middle';
-          ctx.fillText(lines[0]!, padPx + run.px * 0.7, y + height / 2);
+          ctx.fillText(lines[0]!, padPx + r * 2 + run.px * 0.4, y + height / 2);
         } else {
           ctx.fillStyle = run.colour ?? PANEL_COLOURS.ink;
           lines.forEach((line, i) => ctx.fillText(line, padPx, y + i * run.px * 1.32));

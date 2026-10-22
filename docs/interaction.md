@@ -12,9 +12,10 @@ world, and in between two worlds the visitor hears and sees both.
 3. **Turning the head or the view** looks around the current world, all 360°. Nothing moves the visitor.
 4. **Turning the stone** moves to another world. The whole surroundings change: sky, ground, light,
    colour, voice, and the stone itself.
-5. **Halfway between two worlds** both are shown at once, blended, and both voices are heard. There is no
+5. **Halfway between two worlds** both are shown at once, blended. There is no
    separate comparison mode: it happens while turning, and the visitor can stay there as long as they hold
-   the stone. When they let go between two worlds, the stone settles on the nearest one after 1.5 s.
+   the stone. When they let go, the stone behaves like a carousel with fixed stops: a small push (a fifth
+   of the way) is enough, and it glides to the next world by itself; a smaller push springs back.
 6. **The lens.** Glowing points mark details. Selecting one opens a card with the claim behind it: title,
    certainty, a short text, the voice that makes it, its source, and whether an expert has approved it.
 
@@ -29,7 +30,10 @@ world, and in between two worlds the visitor hears and sees both.
 | Inspect a detail    | Click a glowing point (or Tab to _Inspect_ buttons) | Tap a glowing point           | Point and pull the trigger    |
 | Close a card        | Click outside, or Esc                               | Swipe down                    | Trigger again                 |
 
-The dial needs 160 px of drag or swipe, or 70° of wrist twist, per world. A key press or a settle animates
+The dial follows 160 px of drag or swipe, or 70° of wrist twist, per world; one scroll gesture or key press
+moves one world. The worlds form a ring (A, B, C, then A again), so the stone turns endlessly either way.
+Only one voice speaks at a time: entering a world fades the previous voice out (0.7 s), then the new one
+speaks once, from the start. A hidden browser tab goes silent. A step or a snap animates
 over 600 ms, or instantly with `prefers-reduced-motion`.
 
 ## What is on screen
@@ -53,12 +57,12 @@ line of sight, and the lens card floats 1 m in front of the visitor.
 
 ## Code
 
-|                                                     |                                  |
-| --------------------------------------------------- | -------------------------------- |
-| Dial: position → world weights, step, settle (pure) | `src/dial.ts`                    |
-| Worlds and how two are blended                      | `src/worlds/`                    |
-| The stone's states                                  | `src/stone.ts`                   |
-| Voices and crossfade                                | `src/audio.ts`                   |
-| Desktop and mobile input                            | `src/controls.ts`, `src/look.ts` |
-| VR: grab, wrist twist, lens, panels, seated height  | `src/xr.ts`                      |
-| On-screen UI                                        | `src/ui/`                        |
+|                                                    |                                  |
+| -------------------------------------------------- | -------------------------------- |
+| Dial: position → world weights, step, snap (pure)  | `src/dial.ts`                    |
+| Worlds and how two are blended                     | `src/worlds/`                    |
+| The stone's states                                 | `src/stone.ts`                   |
+| Voices and crossfade                               | `src/audio.ts`                   |
+| Desktop and mobile input                           | `src/controls.ts`, `src/look.ts` |
+| VR: grab, wrist twist, lens, panels, seated height | `src/xr.ts`                      |
+| On-screen UI                                       | `src/ui/`                        |

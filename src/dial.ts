@@ -1,56 +1,64 @@
 // The stone is the dial of history. Its position is a number along the worlds: 0 is the first
-// world, 1 the second, and 0.5 is halfway between them, where both are blended.
+// world, 1 the second, and 0.5 is halfway between them, where both are blended. The worlds form a
+// ring: after the last comes the first again, so the stone can be turned endlessly either way.
 
 export const TRANSITION_MS = 600;
-export const SETTLE_DELAY_MS = 1500;
+/** Fraction of a world the stone must be pushed to go there by itself on release. */
+export const SNAP_THRESHOLD = 0.2;
 
 /** Wrist twist in VR for one world. Comfortable: about two worlds in each direction from neutral. */
 export const TWIST_DEG_PER_WORLD = 70;
 /** Horizontal swipe or drag on the stone, in CSS pixels, for one world. */
 export const SWIPE_PX_PER_WORLD = 160;
-/** Mouse-wheel delta for one world (one notch is usually 100). */
-export const SCROLL_PER_WORLD = 300;
 
-export const clampDial = (value: number, worldCount: number): number => Math.min(worldCount - 1, Math.max(0, value));
+/** Index of a world on the ring, for any position (also negative ones). */
+export const worldIndex = (position: number, worldCount: number): number =>
+  ((Math.round(position) % worldCount) + worldCount) % worldCount;
 
 /** Blend weight of every world at a dial position. At most two are non-zero, and they sum to 1. */
 export const worldWeights = (value: number, worldCount: number): number[] => {
-  const v = clampDial(value, worldCount);
-  const lower = Math.floor(v);
-  const t = v - lower;
-  return Array.from({ length: worldCount }, (_, i) => (i === lower ? 1 - t : i === lower + 1 ? t : 0));
+  const lower = Math.floor(value);
+  const t = value - lower;
+  const a = worldIndex(lower, worldCount);
+  const b = worldIndex(lower + 1, worldCount);
+  return Array.from({ length: worldCount }, (_, i) => (i === a ? 1 - t : 0) + (i === b ? t : 0));
 };
 
-export const nearestWorld = (value: number): number => Math.round(value);
-
-export const isBetweenWorlds = (value: number): boolean => Math.abs(value - Math.round(value)) > 0.001;
+/** The world the dial is closest to. */
+export const nearestWorld = (value: number, worldCount: number): number => worldIndex(value, worldCount);
 
 const easeInOut = (t: number): number => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2);
 
 export type Dial = {
   readonly value: () => number;
-  /** The visitor takes hold of the stone: the dial stays wherever they leave it. */
+  /** The visitor takes hold of the stone: it follows their hand until they let go. */
   readonly hold: () => void;
   /** Sets the position directly (dragging, twisting). */
   readonly set: (value: number) => void;
-  /** Lets go. Between two worlds, the stone settles on the nearest one after SETTLE_DELAY_MS. */
+  /** Lets go: like a carousel with fixed stops, the stone glides to the world it was pushed towards. */
   readonly release: (now: number) => void;
-  /** Wheel: moves the dial and counts as a brief touch, so it settles too. */
-  readonly nudge: (delta: number, now: number) => void;
-  /** Animated move to the next or previous world. */
+  /** Animated move to the next or previous world (keys, wheel). */
   readonly step: (direction: 1 | -1, now: number) => void;
   readonly update: (now: number) => number;
 };
 
-export const createDial = (worldCount: number, options: { readonly instant?: () => boolean } = {}): Dial => {
+/** Where the dial goes when let go: a small push in either direction is enough to change world. */
+export const snapTarget = (from: number, value: number): number => {
+  const moved = value - from;
+  return moved >= SNAP_THRESHOLD
+    ? Math.ceil(value - 1e-9)
+    : moved <= -SNAP_THRESHOLD
+      ? Math.floor(value + 1e-9)
+      : Math.round(from);
+};
+
+export const createDial = (options: { readonly instant?: () => boolean } = {}): Dial => {
   let value = 0;
-  let held = false;
-  let releasedAt: number | null = null;
+  let heldFrom: number | null = null;
   let animation: { readonly from: number; readonly to: number; readonly start: number } | null = null;
 
   const animateTo = (to: number, now: number) => {
-    releasedAt = null;
-    if (options.instant?.()) {
+    if (options.instant?.() || to === value) {
       value = to;
       animation = null;
     } else {
@@ -61,34 +69,26 @@ export const createDial = (worldCount: number, options: { readonly instant?: () 
   return {
     value: () => value,
     hold: () => {
-      held = true;
       animation = null;
-      releasedAt = null;
+      heldFrom = value;
     },
     set: (next) => {
-      value = clampDial(next, worldCount);
+      value = next;
     },
     release: (now) => {
-      held = false;
-      releasedAt = now;
-    },
-    nudge: (delta, now) => {
-      animation = null;
-      value = clampDial(value + delta, worldCount);
-      releasedAt = now;
+      if (heldFrom === null) return;
+      animateTo(snapTarget(heldFrom, value), now);
+      heldFrom = null;
     },
     step: (direction, now) => {
-      const from = animation ? animation.to : nearestWorld(value);
-      animateTo(clampDial(from + direction, worldCount), now);
+      const from = animation ? animation.to : Math.round(value);
+      animateTo(from + direction, now);
     },
     update: (now) => {
       if (animation) {
         const t = Math.min(1, (now - animation.start) / TRANSITION_MS);
         value = animation.from + (animation.to - animation.from) * easeInOut(t);
         if (t >= 1) animation = null;
-      } else if (!held && releasedAt !== null && now - releasedAt >= SETTLE_DELAY_MS) {
-        if (isBetweenWorlds(value)) animateTo(nearestWorld(value), now);
-        releasedAt = null;
       }
       return value;
     },

@@ -1,6 +1,3 @@
-import '@fontsource/gentium-book-plus/latin-400.css';
-import '@fontsource/gentium-book-plus/latin-700.css';
-import '@fontsource/ibm-plex-sans-condensed/latin-500.css';
 import './styles.css';
 import rawContent from '../content/demo.json';
 import { applyOverrides, loadOverrides, STORAGE_KEY } from './approvals.ts';
@@ -58,7 +55,7 @@ const holdInView = () => {
 };
 putOnPlinth();
 
-const dial = createDial(worlds.length, { instant: () => reducedMotion.matches });
+const dial = createDial({ instant: () => reducedMotion.matches });
 const look = createLook(camera, -25);
 const voices = createVoices(camera, content.worlds);
 
@@ -126,7 +123,7 @@ renderer.setAnimationLoop((now) => {
   const started = store.get().started;
   const value = dial.update(now);
   const weights = worldWeights(value, worlds.length);
-  const nearest = nearestWorld(value);
+  const nearest = nearestWorld(value, worlds.length);
 
   // The worlds come out of the dark when the stone is picked up.
   reveal.value = started ? (reducedMotion.matches ? 1 : Math.min(1, (now - startedAt) / TRANSITION_MS)) : 0;

@@ -1,39 +1,20 @@
-// The three voices play together; the dial sets how loud each one is. Halfway between two
-// worlds both are heard. A voice restarts from its first word each time its world comes back.
+// One voice at a time. Entering a world fades out the voice that was speaking, then the new
+// world's voice speaks once, from its first word. It does not repeat until the world is entered again.
 import { Audio, AudioListener, AudioLoader, type Object3D } from 'three';
 import type { World } from './content.ts';
 
-/** Equal-power crossfade: the overall loudness stays even halfway between two worlds. */
-export const equalPowerGain = (weight: number): number => Math.sin((Math.min(1, Math.max(0, weight)) * Math.PI) / 2);
-
 const LEVEL = 0.9;
-const PAUSE_BETWEEN_REPEATS_S = 3;
+/** How long the old voice takes to fade away before the new one starts, in seconds. */
+export const FADE_OUT_S = 0.7;
+const FADE_IN_S = 0.15;
 
-/** An absent voice is heard quietly and from far away: muffled, with a long room tail. */
-const distant = (context: AudioContext): AudioNode[] => {
-  const lowpass = context.createBiquadFilter();
-  lowpass.type = 'lowpass';
-  lowpass.frequency.value = 1300;
-  const seconds = 2.2;
-  const impulse = context.createBuffer(1, Math.round(seconds * context.sampleRate), context.sampleRate);
-  const data = impulse.getChannelData(0);
-  // A procedural room: the direct sound, then decaying noise.
-  for (let i = 0; i < data.length; i += 1)
-    data[i] = i === 0 ? 0.6 : (Math.random() * 2 - 1) * 0.5 * (1 - i / data.length) ** 3;
-  const room = context.createConvolver();
-  room.normalize = false;
-  room.buffer = impulse;
-  return [lowpass, room];
-};
-
-const withPause = (context: AudioContext, buffer: AudioBuffer): AudioBuffer => {
-  const padded = context.createBuffer(
-    buffer.numberOfChannels,
-    buffer.length + Math.round(PAUSE_BETWEEN_REPEATS_S * buffer.sampleRate),
-    buffer.sampleRate,
-  );
-  for (let c = 0; c < buffer.numberOfChannels; c += 1) padded.copyToChannel(buffer.getChannelData(c), c);
-  return padded;
+/**
+ * Which world's voice should be speaking: the strongest one, with some hysteresis so a stone held
+ * right between two worlds does not flip between their voices.
+ */
+export const speakingWorld = (weights: readonly number[], current: number): number => {
+  const strongest = weights.indexOf(Math.max(...weights));
+  return current >= 0 && (weights[current] ?? 0) > 0.4 ? current : strongest;
 };
 
 export type Voices = {
@@ -46,8 +27,35 @@ export type Voices = {
 export const createVoices = (listenerParent: Object3D, worlds: readonly World[]): Voices => {
   let listener: AudioListener | null = null;
   let voices: (Audio | null)[] = worlds.map(() => null);
-  let previous = worlds.map(() => 0);
+  let speaking = -1;
+  let pending: { readonly index: number; readonly at: number } | null = null;
   let muted = false;
+
+  const fadeOut = (index: number, now: number) => {
+    const voice = voices[index];
+    if (!voice?.isPlaying) return false;
+    voice.gain.gain.cancelScheduledValues(now);
+    voice.gain.gain.setValueAtTime(voice.gain.gain.value, now);
+    voice.gain.gain.linearRampToValueAtTime(0, now + FADE_OUT_S);
+    voice.stop(FADE_OUT_S);
+    return true;
+  };
+
+  const speak = (index: number, now: number) => {
+    const voice = voices[index];
+    if (!voice) return;
+    if (voice.isPlaying) voice.stop();
+    voice.gain.gain.cancelScheduledValues(now);
+    voice.gain.gain.setValueAtTime(0, now);
+    voice.gain.gain.linearRampToValueAtTime(voice.userData.level as number, now + FADE_IN_S);
+    voice.play();
+  };
+
+  // A hidden tab should not keep talking.
+  document.addEventListener('visibilitychange', () => {
+    if (!listener) return;
+    void (document.hidden ? listener.context.suspend() : listener.context.resume());
+  });
 
   return {
     start: async () => {
@@ -62,12 +70,12 @@ export const createVoices = (listenerParent: Object3D, worlds: readonly World[])
           try {
             const buffer = await loader.loadAsync(`${import.meta.env.BASE_URL}${world.audio.src}`);
             const voice = new Audio(listener!);
-            voice.setBuffer(withPause(listener!.context, buffer));
-            voice.setLoop(true);
+            voice.setBuffer(buffer);
+            voice.setLoop(false);
             voice.setVolume(0);
             const quiet = world.certainty === 'absent-voice';
-            voice.userData.level = quiet ? LEVEL * 0.45 : LEVEL;
-            if (quiet) voice.setFilters(distant(listener!.context));
+            // An absent voice is heard more quietly, as if from further away.
+            voice.userData.level = quiet ? LEVEL * 0.6 : LEVEL;
             return voice;
           } catch (error) {
             console.warn(`Could not load ${world.audio.src}`, error);
@@ -75,21 +83,21 @@ export const createVoices = (listenerParent: Object3D, worlds: readonly World[])
           }
         }),
       );
-      previous = worlds.map(() => 0);
     },
     update: (weights) => {
-      if (!listener) return;
+      if (!listener || voices.every((v) => !v)) return;
       const now = listener.context.currentTime;
-      voices.forEach((voice, i) => {
-        if (!voice) return;
-        const weight = weights[i] ?? 0;
-        if (weight > 0.01 && (previous[i] ?? 0) <= 0.01) {
-          if (voice.isPlaying) voice.stop();
-          voice.play();
-        }
-        previous[i] = weight;
-        voice.gain.gain.setTargetAtTime(equalPowerGain(weight) * (voice.userData.level as number), now, 0.05);
-      });
+      const next = speakingWorld(weights, speaking);
+      if (next !== speaking) {
+        const wasSpeaking = speaking >= 0 && fadeOut(speaking, now);
+        speaking = next;
+        // The new voice waits for the old one to fade, so they never pile up.
+        pending = { index: next, at: wasSpeaking ? now + FADE_OUT_S : (pending?.at ?? now) };
+      }
+      if (pending && now >= pending.at) {
+        speak(pending.index, now);
+        pending = null;
+      }
     },
     setMuted: (value) => {
       muted = value;
