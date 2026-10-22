@@ -26,10 +26,10 @@ same paradata inside the 3D files (glTF `extras`) and as JSON-LD.
 
 ## The demo
 
-| World   | Certainty    | Look                                     | Voice                                                   |
-| ------- | ------------ | ---------------------------------------- | ------------------------------------------------------- |
-| World A | documented   | solid, lit, matte                        | archaeology                                             |
-| World B | imagined     | an engraving on sepia paper              | European imagination                                    |
+| World   | Certainty    | Look                                     | Voice                                      |
+| ------- | ------------ | ---------------------------------------- | ------------------------------------------ |
+| World A | documented   | solid, lit, matte                        | archaeology                                |
+| World B | imagined     | an engraving on sepia paper              | European imagination                       |
 | World C | absent voice | near-dark, dashed outlines on the ground | ancient self-depiction, heard more quietly |
 
 Controls, the on-screen UI and accessibility are described in [docs/interaction.md](docs/interaction.md); the
