@@ -1,0 +1,37 @@
+Creative Commons Attribution 4.0 International (CC BY 4.0)
+https://creativecommons.org/licenses/by/4.0/legalcode
+
+Covered
+-------
+
+- content/demo.json (texts and world definitions)
+- schema/demo.schema.json (descriptions)
+- docs/
+- public/audio/ (the three demo voices, see below)
+- The procedural scenes as rendered or exported (export/*.glb, export/demo.jsonld)
+
+All source code is licensed separately under the Apache License 2.0 (see LICENSE).
+
+Everything visual is made in code: procedural geometry, shaders and canvas textures. The repository contains
+no third-party images, photographs, plans, engravings, coin images or downloaded models, and no
+AI-generated images. All texts are placeholders pending heritage expert validation.
+
+Synthetic voices
+----------------
+
+public/audio/world-a.m4a, world-b.m4a and world-c.m4a are synthetic placeholder voices, generated with a
+text-to-speech model and labelled "Synthetic placeholder voice" wherever they play.
+
+Model: Kokoro-82M
+Voice: af_nicole (Nicole)
+Licence: Apache-2.0
+
+The voices' use here must also follow the model's licence. They will be replaced by recorded voices of real
+people, with their consent.
+
+Attribution
+-----------
+
+"One Stone, Many Worlds demo content" by the layered-past-xr contributors, licensed under CC BY 4.0.
+
+This summary is not a substitute for the licence; see the legal code at the address above.

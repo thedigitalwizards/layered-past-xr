@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="An open WebXR framework for showing who interprets a heritage object, on what evidence, and how certain we are."
+    />
+    <title>One Stone, Many Worlds</title>
+  </head>
+  <body>
+    <div
+      id="viewport"
+      role="img"
+      aria-label="A stone at the centre of a world that changes as you turn the stone."
+    ></div>
+    <div id="label" class="label" aria-live="polite"></div>
+    <p id="prompt" class="prompt"></p>
+    <div id="caption" class="caption" aria-live="polite"></div>
+    <nav id="claims-nav" class="claims-nav" aria-label="Details in this world"></nav>
+    <div class="buttons">
+      <button id="sound" class="round" type="button"></button>
+      <button id="vr" class="round" type="button" aria-label="Enter VR" hidden></button>
+    </div>
+    <section id="card" class="card" role="dialog" aria-labelledby="card-title" hidden></section>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

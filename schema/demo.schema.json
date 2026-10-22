@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/thedigitalwizards/layered-past-xr/schema/demo.schema.json",
+  "title": "One Stone, Many Worlds — demo content",
+  "description": "A key object and the worlds the visitor travels through by turning it. See docs/content-model.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["object", "worlds"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "object": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "title": { "$ref": "#/$defs/text" }
+      }
+    },
+    "worlds": {
+      "description": "In dial order: turning the stone moves from the first world to the last.",
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 6,
+      "items": { "$ref": "#/$defs/world" }
+    }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "text": { "type": "string", "minLength": 1, "maxLength": 600 },
+    "voice": {
+      "enum": [
+        "archaeology",
+        "ancient-self-depiction",
+        "european-imagination",
+        "excavators",
+        "community-gc",
+        "community-tc",
+        "institution",
+        "tourism"
+      ]
+    },
+    "certainty": { "enum": ["documented", "interpreted", "hypothesis", "imagined", "unknown", "absent-voice"] },
+    "world": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "period", "voice", "certainty", "audio", "stone", "claims"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "title": { "$ref": "#/$defs/text" },
+        "period": { "$ref": "#/$defs/text" },
+        "voice": { "$ref": "#/$defs/voice" },
+        "certainty": { "$ref": "#/$defs/certainty" },
+        "audio": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["src", "caption", "synthetic"],
+          "properties": {
+            "src": {
+              "type": "string",
+              "pattern": "^audio/[a-z0-9-]+\\.(m4a|mp3)$",
+              "description": "Path under public/."
+            },
+            "caption": { "$ref": "#/$defs/text" },
+            "synthetic": {
+              "type": "boolean",
+              "description": "True for generated placeholder voices; shown under the caption."
+            }
+          }
+        },
+        "stone": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["style"],
+          "properties": { "style": { "enum": ["solid", "engraving", "outline"] } }
+        },
+        "claims": { "type": "array", "minItems": 1, "maxItems": 6, "items": { "$ref": "#/$defs/claim" } }
+      }
+    },
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "anchor", "text", "voice", "certainty", "evidence", "approval"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 60 },
+        "anchor": {
+          "type": "array",
+          "items": { "type": "number" },
+          "minItems": 3,
+          "maxItems": 3,
+          "description": "Position of the glowing point in metres [x, y, z]; the visitor stands at the origin, y is up."
+        },
+        "text": { "$ref": "#/$defs/text" },
+        "voice": { "$ref": "#/$defs/voice" },
+        "certainty": { "$ref": "#/$defs/certainty" },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["citation", "url", "licence"],
+            "properties": {
+              "citation": { "$ref": "#/$defs/text" },
+              "url": { "type": ["string", "null"], "pattern": "^https?://" },
+              "licence": { "type": ["string", "null"] }
+            }
+          }
+        },
+        "approval": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "by", "date"],
+          "properties": {
+            "status": { "enum": ["draft", "reviewed", "approved"] },
+            "by": { "type": ["string", "null"] },
+            "date": { "type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$" }
+          }
+        }
+      }
+    }
+  }
+}

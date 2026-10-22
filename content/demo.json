@@ -1,0 +1,219 @@
+{
+  "$schema": "../schema/demo.schema.json",
+  "object": {
+    "id": "demo-stone",
+    "title": "Demo Stone"
+  },
+  "worlds": [
+    {
+      "id": "world-a",
+      "title": "World A",
+      "period": "[Placeholder period]",
+      "voice": "archaeology",
+      "certainty": "documented",
+      "audio": {
+        "src": "audio/world-a.m4a",
+        "caption": "These stones were measured and recorded where they stand. What you see here is what was found.",
+        "synthetic": true
+      },
+      "stone": {
+        "style": "solid"
+      },
+      "claims": [
+        {
+          "id": "a-1",
+          "title": "Measured position",
+          "anchor": [-1.54, 1.0, -4.23],
+          "text": "Example claim: the stone's position was surveyed in place. [Placeholder — pending heritage expert validation]",
+          "voice": "archaeology",
+          "certainty": "documented",
+          "evidence": [
+            {
+              "citation": "[Placeholder reference — survey record]",
+              "url": null,
+              "licence": null
+            }
+          ],
+          "approval": {
+            "status": "draft",
+            "by": null,
+            "date": null
+          }
+        },
+        {
+          "id": "a-2",
+          "title": "Wall foundations",
+          "anchor": [4.6, 0.7, -4.6],
+          "text": "Example claim: these foundations were excavated and drawn. [Placeholder — pending heritage expert validation]",
+          "voice": "archaeology",
+          "certainty": "documented",
+          "evidence": [
+            {
+              "citation": "[Placeholder reference — excavation report]",
+              "url": null,
+              "licence": null
+            },
+            {
+              "citation": "[Placeholder reference — site plan]",
+              "url": null,
+              "licence": null
+            }
+          ],
+          "approval": {
+            "status": "draft",
+            "by": null,
+            "date": null
+          }
+        },
+        {
+          "id": "a-3",
+          "title": "Use of the space",
+          "anchor": [1.88, 1.4, 5.17],
+          "text": "Example claim: the space was probably open to the sky. [Placeholder — pending heritage expert validation]",
+          "voice": "archaeology",
+          "certainty": "interpreted",
+          "evidence": [
+            {
+              "citation": "[Placeholder reference — comparative study]",
+              "url": null,
+              "licence": null
+            }
+          ],
+          "approval": {
+            "status": "draft",
+            "by": null,
+            "date": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "world-b",
+      "title": "World B",
+      "period": "[Placeholder period]",
+      "voice": "european-imagination",
+      "certainty": "imagined",
+      "audio": {
+        "src": "audio/world-b.m4a",
+        "caption": "I have never stood on this ground, yet I can tell you how the temple looked: tall columns, a golden roof, a sky full of smoke.",
+        "synthetic": true
+      },
+      "stone": {
+        "style": "engraving"
+      },
+      "claims": [
+        {
+          "id": "b-1",
+          "title": "Tall columns",
+          "anchor": [1.55, 2.6, -5.8],
+          "text": "Example claim: a later account describes a ring of tall columns. [Placeholder — pending heritage expert validation]",
+          "voice": "european-imagination",
+          "certainty": "imagined",
+          "evidence": [
+            {
+              "citation": "[Placeholder reference — travel account]",
+              "url": null,
+              "licence": null
+            }
+          ],
+          "approval": {
+            "status": "draft",
+            "by": null,
+            "date": null
+          }
+        },
+        {
+          "id": "b-2",
+          "title": "A golden roof",
+          "anchor": [-6.58, 3.2, -2.39],
+          "text": "Example claim: printed images show a golden roof that no source confirms. [Placeholder — pending heritage expert validation]",
+          "voice": "european-imagination",
+          "certainty": "imagined",
+          "evidence": [
+            {
+              "citation": "[Placeholder reference — printed engraving, described, not reproduced]",
+              "url": null,
+              "licence": null
+            }
+          ],
+          "approval": {
+            "status": "draft",
+            "by": null,
+            "date": null
+          }
+        },
+        {
+          "id": "b-3",
+          "title": "Smoke from the altar",
+          "anchor": [4.33, 1.8, 2.5],
+          "text": "Example claim: the smoke may echo an older text. [Placeholder — pending heritage expert validation]",
+          "voice": "european-imagination",
+          "certainty": "hypothesis",
+          "evidence": [
+            {
+              "citation": "[Placeholder reference — textual study]",
+              "url": null,
+              "licence": null
+            }
+          ],
+          "approval": {
+            "status": "draft",
+            "by": null,
+            "date": null
+          }
+        }
+      ]
+    },
+    {
+      "id": "world-c",
+      "title": "World C",
+      "period": "[Placeholder period]",
+      "voice": "ancient-self-depiction",
+      "certainty": "absent-voice",
+      "audio": {
+        "src": "audio/world-c.m4a",
+        "caption": "Someone once lived beside this stone. Their words were never written down, and we have not heard them yet.",
+        "synthetic": true
+      },
+      "stone": {
+        "style": "outline"
+      },
+      "claims": [
+        {
+          "id": "c-1",
+          "title": "An unrecorded voice",
+          "anchor": [0.87, 1.2, -4.92],
+          "text": "Example claim: no account by the people who lived here has been recorded. [Placeholder — pending heritage expert validation]",
+          "voice": "ancient-self-depiction",
+          "certainty": "absent-voice",
+          "evidence": [],
+          "approval": {
+            "status": "draft",
+            "by": null,
+            "date": null
+          }
+        },
+        {
+          "id": "c-2",
+          "title": "Traces of a house",
+          "anchor": [-5.64, 0.4, 2.05],
+          "text": "Example claim: something stood here, but its form is unknown. [Placeholder — pending heritage expert validation]",
+          "voice": "ancient-self-depiction",
+          "certainty": "unknown",
+          "evidence": [
+            {
+              "citation": "[Placeholder reference — geophysical survey]",
+              "url": null,
+              "licence": null
+            }
+          ],
+          "approval": {
+            "status": "draft",
+            "by": null,
+            "date": null
+          }
+        }
+      ]
+    }
+  ]
+}

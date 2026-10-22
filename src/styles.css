@@ -1,0 +1,344 @@
+:root {
+  --bg: #f2f3ef;
+  --ink: #1c2420;
+  --muted: #52605a;
+  --rule: #d3d8d2;
+  --gabbro: #2f4a3f;
+  --doc: #2e6b4f;
+  --int: #2f5d8a;
+  --hyp: #9a5413;
+  --imag: #6b5a86;
+  --absent: #5e6762;
+  --surface: rgb(242 243 239 / 0.86);
+  --display: 'Gentium Book Plus', Georgia, serif;
+  --label: 'IBM Plex Sans Condensed', 'Arial Narrow', sans-serif;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121815;
+    --ink: #e6ebe7;
+    --muted: #a3b0a9;
+    --rule: #2c3631;
+    --gabbro: #9cc2b0;
+    --surface: rgb(18 24 21 / 0.82);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+  color: var(--ink);
+  font-family: var(--display);
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+}
+
+p,
+h2 {
+  margin: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--gabbro);
+  outline-offset: 3px;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+#viewport {
+  position: fixed;
+  inset: 0;
+  touch-action: none;
+}
+
+#viewport canvas {
+  display: block;
+}
+
+/* Labels: small condensed capitals. */
+.label__world,
+.pill,
+.prompt,
+.caption__source,
+.card__meta,
+.card__note,
+.debug {
+  font-family: var(--label);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.label {
+  position: fixed;
+  top: max(20px, env(safe-area-inset-top));
+  left: max(20px, env(safe-area-inset-left));
+  display: grid;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+}
+.label.is-awake {
+  opacity: 1;
+}
+.label__world {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--surface);
+  backdrop-filter: blur(8px);
+}
+
+.pill {
+  display: inline-block;
+  padding: 2px 9px;
+  border: 1px solid var(--pill);
+  border-radius: 999px;
+  color: var(--pill);
+  font-size: 12px;
+  line-height: 1.5;
+}
+@media (prefers-color-scheme: dark) {
+  /* The certainty colours are dark; lift them a little to stay readable on a dark surface. */
+  .pill {
+    color: color-mix(in srgb, var(--pill) 55%, white);
+    border-color: color-mix(in srgb, var(--pill) 55%, white);
+  }
+}
+
+.prompt {
+  position: fixed;
+  left: 50%;
+  bottom: max(150px, calc(env(safe-area-inset-bottom) + 150px));
+  transform: translateX(-50%);
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--surface);
+  backdrop-filter: blur(8px);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.caption {
+  position: fixed;
+  left: 50%;
+  bottom: max(24px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  width: min(620px, calc(100vw - 150px));
+  display: grid;
+  gap: 8px;
+  pointer-events: none;
+}
+.caption__line {
+  padding: 10px 16px 9px;
+  border-radius: 12px;
+  background: var(--surface);
+  backdrop-filter: blur(8px);
+  text-align: center;
+}
+.caption__text {
+  font-size: 18px;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.caption__source {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.caption__line--secondary {
+  opacity: 0.75;
+}
+.caption__line--secondary .caption__text {
+  font-size: 15px;
+}
+
+.buttons {
+  position: fixed;
+  right: max(20px, env(safe-area-inset-right));
+  bottom: max(24px, env(safe-area-inset-bottom));
+  display: flex;
+  gap: 10px;
+}
+.round {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--rule);
+  border-radius: 50%;
+  background: var(--surface);
+  backdrop-filter: blur(8px);
+  color: var(--ink);
+  cursor: pointer;
+}
+.round svg {
+  width: 24px;
+  height: 24px;
+}
+.round:hover {
+  border-color: var(--muted);
+}
+
+/* The lens card: a bottom sheet. */
+.card {
+  position: fixed;
+  left: 50%;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  translate: -50% 0;
+  width: min(520px, calc(100vw - 24px));
+  display: grid;
+  gap: 10px;
+  padding: 14px 22px 20px;
+  border: 1px solid var(--rule);
+  border-radius: 18px;
+  background: var(--bg);
+  box-shadow: 0 12px 40px rgb(0 0 0 / 0.25);
+  touch-action: none;
+  transition: transform 0.15s ease;
+  animation: rise 0.25s ease;
+}
+@keyframes rise {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+}
+.card__handle {
+  justify-self: center;
+  width: 40px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--rule);
+}
+.card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.card h2 {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.card h2:focus {
+  outline: none;
+}
+.card__text {
+  font-size: 18px;
+  line-height: 1.45;
+}
+.card__meta {
+  color: var(--muted);
+}
+.card__meta a {
+  color: inherit;
+}
+.card__note {
+  margin-top: 2px;
+  padding-top: 10px;
+  border-top: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 12px;
+}
+.card__note--draft {
+  color: var(--hyp);
+}
+@media (prefers-color-scheme: dark) {
+  .card__note--draft {
+    color: #e0a56a;
+  }
+}
+
+/* Keyboard and screen-reader access to the claims in view; only visible when focused. */
+.claims-nav {
+  position: fixed;
+  top: max(20px, env(safe-area-inset-top));
+  right: max(20px, env(safe-area-inset-right));
+  display: grid;
+  gap: 6px;
+}
+.claims-nav button {
+  position: absolute;
+  right: 0;
+  width: max-content;
+  clip-path: inset(50%);
+  padding: 8px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px var(--display);
+  cursor: pointer;
+}
+.claims-nav button:focus {
+  position: static;
+  clip-path: none;
+}
+
+.debug {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--surface);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+.debug button {
+  font: inherit;
+}
+
+@media (max-width: 600px) {
+  .caption {
+    width: calc(100vw - 32px);
+    bottom: max(84px, calc(env(safe-area-inset-bottom) + 84px));
+  }
+  /* Two lines cannot hold a whole sentence on a phone; three is better than cutting the voice off. */
+  .caption__text {
+    font-size: 15px;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+  .prompt {
+    bottom: max(210px, calc(env(safe-area-inset-bottom) + 210px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .label,
+  .card {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* The card takes the caption's place while it is open. */
+body:has(.card:not([hidden])) .caption {
+  opacity: 0;
+}

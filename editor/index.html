@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Claims — One Stone, Many Worlds</title>
+  </head>
+  <body class="editor">
+    <main>
+      <p class="kicker">One Stone, Many Worlds · Expert validation</p>
+      <h1>Claims</h1>
+      <p class="intro">
+        Read each claim, then mark it reviewed or approve it. Your changes are saved in this browser only and show up in
+        the experience straight away. Export them to send to the team.
+      </p>
+      <p class="actions">
+        <button id="export" type="button">Export JSON</button>
+        <a href="../">Back to the experience</a>
+      </p>
+      <p id="status" class="status" role="status"></p>
+      <div id="claims"></div>
+    </main>
+    <dialog id="name-dialog">
+      <form method="dialog">
+        <label for="name">Your name, as the reviewer</label>
+        <input id="name" name="name" autocomplete="name" required />
+        <p class="actions">
+          <button value="ok">Confirm</button>
+          <button value="cancel" formnovalidate>Cancel</button>
+        </p>
+      </form>
+    </dialog>
+    <script type="module" src="/src/editor/main.ts"></script>
+  </body>
+</html>

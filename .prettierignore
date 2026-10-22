@@ -1,0 +1,5 @@
+dist/
+export/
+node_modules/
+package-lock.json
+.claude/
