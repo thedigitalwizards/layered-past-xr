@@ -4,7 +4,7 @@ https://creativecommons.org/licenses/by/4.0/legalcode
 Covered
 -------
 
-- content/demo.json (texts and world definitions)
+- content/demo.json (texts and context definitions)
 - schema/demo.schema.json (descriptions)
 - docs/
 - public/audio/ (the three demo voices, see below)
@@ -19,7 +19,7 @@ AI-generated images. All texts are placeholders pending heritage expert validati
 Synthetic voices
 ----------------
 
-public/audio/world-a.m4a, world-b.m4a and world-c.m4a are synthetic placeholder voices, generated with a
+public/audio/context-a.m4a, context-b.m4a and context-c.m4a are synthetic placeholder voices, generated with a
 text-to-speech model and labelled "Synthetic placeholder voice" wherever they play.
 
 Model: Kokoro-82M

@@ -1,24 +1,27 @@
-// Desktop and mobile input. A drag that starts on the stone turns the dial (a swipe on the stone
-// on a phone); a drag anywhere else looks around. A short tap picks up the stone or opens a claim.
+// Desktop and mobile input. Dragging looks around. Moving through time: scroll or ← → on a desktop,
+// a quick horizontal swipe on a touch screen. A short tap opens a claim or presses the time dial.
 import { Raycaster, Vector2, type Camera, type Object3D } from 'three';
-import { SWIPE_PX_PER_WORLD, type Dial } from './dial.ts';
+import type { Dial } from './dial.ts';
 import type { Look } from './look.ts';
 import type { Store } from './state.ts';
 
 const TAP_SLOP_PX = 6;
 const WHEEL_PAUSE_MS = 450;
+/** A swipe is short, fast and mostly horizontal; anything slower is looking around. */
+const SWIPE = { maxMs: 350, minPx: 50 } as const;
 
 export type ControlsOptions = {
   readonly canvas: HTMLCanvasElement;
   readonly camera: Camera;
-  readonly stoneTarget: Object3D;
   readonly claimTargets: () => readonly Object3D[];
+  /** Pressable things in the scene (the time dial); `userData.press` is called on a tap. */
+  readonly pressTargets: () => readonly Object3D[];
   readonly dial: Dial;
   readonly look: Look;
   readonly store: Store;
   /** True when a pointer event landed inside the lens card. */
   readonly inCard: (target: EventTarget | null) => boolean;
-  /** Any interaction: brings the world label back. */
+  /** Any interaction: brings the context label back. */
   readonly onActivity: () => void;
   readonly onAim: (claimId: string | null) => void;
 };
@@ -30,35 +33,22 @@ export const attachControls = (o: ControlsOptions): void => {
     const rect = o.canvas.getBoundingClientRect();
     ndc.set(((x - rect.left) / rect.width) * 2 - 1, -((y - rect.top) / rect.height) * 2 + 1);
     raycaster.setFromCamera(ndc, o.camera);
-    // The stone may have just moved (picked up) without a frame drawn since.
-    targets.forEach((t) => t.updateWorldMatrix(true, false));
     return raycaster.intersectObjects([...targets], false)[0]?.object;
   };
 
-  let gesture: {
-    mode: 'dial' | 'look';
-    x0: number;
-    y0: number;
-    x: number;
-    y: number;
-    dial0: number;
-    id: number;
-  } | null = null;
+  let gesture: { x0: number; y0: number; x: number; y: number; t0: number; id: number; touch: boolean } | null = null;
 
   o.canvas.addEventListener('pointerdown', (e) => {
     if (gesture) return;
     o.onActivity();
-    const onStone = !!hitAt(e.clientX, e.clientY, [o.stoneTarget]);
-    const mode = onStone && o.store.get().started ? 'dial' : 'look';
-    if (mode === 'dial') o.dial.hold();
     gesture = {
-      mode,
       x0: e.clientX,
       y0: e.clientY,
       x: e.clientX,
       y: e.clientY,
-      dial0: o.dial.value(),
+      t0: performance.now(),
       id: e.pointerId,
+      touch: e.pointerType === 'touch',
     };
     try {
       o.canvas.setPointerCapture(e.pointerId);
@@ -69,31 +59,42 @@ export const attachControls = (o: ControlsOptions): void => {
 
   o.canvas.addEventListener('pointermove', (e) => {
     if (gesture && gesture.id === e.pointerId) {
-      if (gesture.mode === 'dial') o.dial.set(gesture.dial0 + (e.clientX - gesture.x0) / SWIPE_PX_PER_WORLD);
-      else o.look.drag(e.clientX - gesture.x, e.clientY - gesture.y);
+      o.look.drag(e.clientX - gesture.x, e.clientY - gesture.y);
       gesture.x = e.clientX;
       gesture.y = e.clientY;
       return;
     }
     if (e.pointerType !== 'mouse') return;
     const aimed = hitAt(e.clientX, e.clientY, o.claimTargets())?.userData.claimId as string | undefined;
-    const onStone = !!hitAt(e.clientX, e.clientY, [o.stoneTarget]);
+    const pressable = !!hitAt(e.clientX, e.clientY, o.pressTargets());
     o.onAim(aimed ?? null);
-    o.canvas.style.cursor = aimed || (onStone && !o.store.get().started) ? 'pointer' : onStone ? 'ew-resize' : 'grab';
+    o.canvas.style.cursor = aimed || pressable ? 'pointer' : 'grab';
   });
 
   const end = (e: PointerEvent) => {
     if (!gesture || gesture.id !== e.pointerId) return;
     const g = gesture;
     gesture = null;
-    if (g.mode === 'dial') o.dial.release(performance.now());
-    const tapped = Math.hypot(e.clientX - g.x0, e.clientY - g.y0) < TAP_SLOP_PX;
-    if (!tapped || e.type === 'pointercancel') return;
+    if (e.type === 'pointercancel') return;
+    const dx = e.clientX - g.x0;
+    const dy = e.clientY - g.y0;
     const state = o.store.get();
-    if (!state.started) {
-      if (hitAt(e.clientX, e.clientY, [o.stoneTarget])) o.store.dispatch({ type: 'pickUp' });
+
+    const swiped =
+      g.touch &&
+      performance.now() - g.t0 < SWIPE.maxMs &&
+      Math.abs(dx) > SWIPE.minPx &&
+      Math.abs(dx) > 2 * Math.abs(dy);
+    if (swiped && state.started) {
+      // The swipe also turned the view a little while it moved: put the view back.
+      o.look.drag(-dx, -dy);
+      o.dial.step(dx < 0 ? 1 : -1, performance.now());
       return;
     }
+
+    if (Math.hypot(dx, dy) >= TAP_SLOP_PX || !state.started) return;
+    const pressed = hitAt(e.clientX, e.clientY, o.pressTargets());
+    if (pressed) return void (pressed.userData.press as () => void)();
     const claimId = hitAt(e.clientX, e.clientY, o.claimTargets())?.userData.claimId as string | undefined;
     if (claimId) o.store.dispatch({ type: 'openClaim', claimId });
     else if (state.openClaimId) o.store.dispatch({ type: 'closeClaim' });
@@ -110,8 +111,9 @@ export const attachControls = (o: ControlsOptions): void => {
       o.onActivity();
       // One step per scroll gesture: trackpads send many small events, so wait for a pause.
       const now = performance.now();
-      if (Math.abs(e.deltaY) < 4 || now - lastWheelStep < WHEEL_PAUSE_MS) {
-        lastWheelStep = Math.abs(e.deltaY) < 4 ? lastWheelStep : now;
+      if (Math.abs(e.deltaY) < 4) return;
+      if (now - lastWheelStep < WHEEL_PAUSE_MS) {
+        lastWheelStep = now;
         return;
       }
       lastWheelStep = now;
@@ -133,7 +135,7 @@ export const attachControls = (o: ControlsOptions): void => {
     if (!o.store.get().started) {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        o.store.dispatch({ type: 'pickUp' });
+        o.store.dispatch({ type: 'begin' });
       }
       return;
     }

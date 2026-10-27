@@ -103,8 +103,14 @@ const claimEntry = (claim: Claim) =>
 const render = () => {
   const content = applyOverrides(base, overrides);
   list.replaceChildren(
-    ...content.worlds.map((world) =>
-      h('section', {}, h('h2', {}, `${world.title} · ${VOICE_LABELS[world.voice]}`), ...world.claims.map(claimEntry)),
+    ...content.contexts.map((context) =>
+      h(
+        'section',
+        {},
+        h('h2', {}, `${context.title} · ${VOICE_LABELS[context.voice]}`),
+        h('p', { className: 'meta' }, 'Baetyl in this context · ', certaintyPill(context.baetyl.certainty)),
+        ...context.claims.map(claimEntry),
+      ),
     ),
   );
 };

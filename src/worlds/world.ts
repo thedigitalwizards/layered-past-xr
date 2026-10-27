@@ -1,6 +1,7 @@
+// A "world" here is the rendered surroundings of one context: sky, ground, hills and structures.
 import type { Group } from 'three';
 import { WORLD_STYLES } from '../certainty.ts';
-import type { World } from '../content.ts';
+import type { Context } from '../content.ts';
 import { buildAbsentWorld } from './absent.ts';
 import type { BlendUniforms } from './blend.ts';
 import { buildEngravingWorld } from './engraving.ts';
@@ -11,7 +12,7 @@ export type WorldView = { readonly group: Group; readonly blend: BlendUniforms }
 const BUILDERS = { solid: buildSolidWorld, engraving: buildEngravingWorld, absent: buildAbsentWorld };
 
 /** Content validation guarantees every world's certainty has a style. */
-export const buildWorld = (world: World, index: number): WorldView =>
+export const buildWorld = (world: Context, index: number): WorldView =>
   BUILDERS[WORLD_STYLES[world.certainty]!](world, index);
 
 export const setWorldWeight = (view: WorldView, weight: number): void => {

@@ -1,6 +1,6 @@
 import type { Certainty } from './content.ts';
 
-/** How a world is drawn. Only three styles exist so far; see docs/certainty.md. */
+/** How the surroundings of a context are drawn. Only three styles exist so far; see docs/certainty.md. */
 export type WorldStyle = 'solid' | 'engraving' | 'absent';
 
 export const CERTAINTY_LABELS: Readonly<Record<Certainty, string>> = {

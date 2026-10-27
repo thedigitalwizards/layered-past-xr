@@ -6,7 +6,7 @@ export type Stage = {
   readonly renderer: WebGLRenderer;
   readonly scene: Scene;
   readonly camera: PerspectiveCamera;
-  /** Everything that belongs to the worlds; moved down in seated mode. */
+  /** Everything in the scene around the visitor; lowered in seated mode and turned to face them in VR. */
   readonly world: Group;
 };
 

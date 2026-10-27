@@ -1,4 +1,4 @@
-// A minimal JSON-LD description of the object, its worlds and their claims, mapped where possible
+// A minimal JSON-LD description of the object, its contexts and their claims, mapped where possible
 // to Europeana EDM and CIDOC-CRM (see docs/paradata-mapping.md). Our own terms use the `lpx:` prefix.
 import { CERTAINTY_LABELS, WORLD_STYLES } from './certainty.ts';
 import { VOICE_LABELS, type Content } from './content.ts';
@@ -7,7 +7,7 @@ const BASE = 'urn:layered-past-xr';
 
 export const toJsonLd = (content: Content, assetFor: (worldId: string) => string) => {
   const object = `${BASE}:object:${content.object.id}`;
-  const voices = [...new Set(content.worlds.flatMap((w) => [w.voice, ...w.claims.map((c) => c.voice)]))];
+  const voices = [...new Set(content.contexts.flatMap((w) => [w.voice, ...w.claims.map((c) => c.voice)]))];
   return {
     '@context': {
       dc: 'http://purl.org/dc/elements/1.1/',
@@ -22,20 +22,28 @@ export const toJsonLd = (content: Content, assetFor: (worldId: string) => string
         '@type': 'crm:E39_Actor',
         'dc:title': VOICE_LABELS[voice],
       })),
-      ...content.worlds.map((world) => ({
-        '@id': `${BASE}:world:${world.id}`,
-        '@type': 'lpx:World',
-        'dc:title': world.title,
-        'lpx:period': world.period,
-        'lpx:voice': { '@id': `${BASE}:voice:${world.voice}` },
-        'lpx:certainty': CERTAINTY_LABELS[world.certainty],
-        'lpx:style': WORLD_STYLES[world.certainty],
-        'lpx:syntheticVoice': world.audio.synthetic,
+      ...content.contexts.map((context) => ({
+        '@id': `${BASE}:context:${context.id}`,
+        '@type': 'lpx:Context',
+        'dc:title': context.title,
+        'lpx:period': context.period,
+        'lpx:voice': { '@id': `${BASE}:voice:${context.voice}` },
+        'lpx:certainty': CERTAINTY_LABELS[context.certainty],
+        'lpx:style': WORLD_STYLES[context.certainty],
+        'lpx:baetylCertainty': CERTAINTY_LABELS[context.baetyl.certainty],
+        'lpx:syntheticVoice': context.audio.synthetic,
         'lpx:about': { '@id': object },
-        'edm:hasView': assetFor(world.id),
+        'edm:hasView': assetFor(context.id),
       })),
-      ...content.worlds.flatMap((world) =>
-        world.claims.map((claim) => ({
+      ...(content.pendingContexts ?? []).map((pending) => ({
+        '@id': `${BASE}:context:${pending.id}`,
+        '@type': 'lpx:Context',
+        'dc:title': pending.title,
+        'lpx:status': 'Pending heritage co-design',
+        'lpx:about': { '@id': object },
+      })),
+      ...content.contexts.flatMap((context) =>
+        context.claims.map((claim) => ({
           '@id': `${BASE}:claim:${claim.id}`,
           '@type': 'crm:E13_Attribute_Assignment',
           'dc:title': claim.title,
@@ -49,7 +57,7 @@ export const toJsonLd = (content: Content, assetFor: (worldId: string) => string
             ...(e.licence ? { 'dc:rights': e.licence } : {}),
           })),
           'lpx:certainty': CERTAINTY_LABELS[claim.certainty],
-          'lpx:inWorld': { '@id': `${BASE}:world:${world.id}` },
+          'lpx:inWorld': { '@id': `${BASE}:context:${context.id}` },
           'lpx:approval': claim.approval.status,
           ...(claim.approval.by ? { 'lpx:approvedBy': claim.approval.by, 'dc:date': claim.approval.date } : {}),
         })),

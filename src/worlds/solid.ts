@@ -1,9 +1,9 @@
 // Documented: solid, lit, matte. The layout reads as an excavated site: low foundations and a few
 // standing stones, "measured and recorded where they stand".
 import { BackSide, Group, Mesh } from 'three';
-import type { World } from '../content.ts';
+import type { Context } from '../content.ts';
 import { createBlendUniforms, createWorldMaterial, SURFACE } from './blend.ts';
-import { block, ground, hills, merge, named, pointAt, seededRandom, sky, yawOf } from './pieces.ts';
+import { block, clearOfVisitor, ground, hills, merge, named, pointAt, seededRandom, sky, yawOf } from './pieces.ts';
 import type { WorldView } from './world.ts';
 
 const FRAGMENT = /* glsl */ `
@@ -47,6 +47,7 @@ const foundations = (random: () => number) =>
       { offset: [width / 2, 0], size: [0.45, height, depth] },
     ] as const;
     const missing = Math.floor(random() * 4);
+    if (!clearOfVisitor(centre, 4.5)) return [];
     return walls
       .filter((_, i) => i !== missing)
       .map(({ offset: [ox, oz], size }) =>
@@ -58,20 +59,18 @@ const foundations = (random: () => number) =>
       );
   }).flat();
 
-export const buildSolidWorld = (world: World, index: number): WorldView => {
-  const random = seededRandom(world.id);
+export const buildSolidWorld = (context: Context, index: number): WorldView => {
+  const random = seededRandom(context.id);
   const blend = createBlendUniforms(index);
   const material = (surface: number) => createWorldMaterial(FRAGMENT, blend, surface);
 
   const standingStones = Array.from({ length: 5 }, () => {
     const yaw = 40 + random() * 280;
-    return block({
-      at: pointAt(yaw, 3.5 + random() * 5),
-      size: [0.5, 1.2 + random() * 1.0, 0.3],
-      turn: random() * 40 - yaw,
-    });
-  });
-  const pedestals = world.claims.map((c) =>
+    return { yaw, at: pointAt(yaw, 3.5 + random() * 5), height: 1.2 + random() * 1.0, turn: random() * 40 - yaw };
+  })
+    .filter(({ at }) => clearOfVisitor(at))
+    .map(({ at, height, turn }) => block({ at, size: [0.5, height, 0.3], turn }));
+  const pedestals = context.claims.map((c) =>
     block({
       at: [c.anchor[0], c.anchor[2]],
       size: [0.45, Math.max(0.2, c.anchor[1] - 0.12), 0.45],
@@ -80,11 +79,11 @@ export const buildSolidWorld = (world: World, index: number): WorldView => {
   );
 
   const group = new Group();
-  group.name = world.id;
+  group.name = context.id;
   group.add(
     named('sky', new Mesh(sky(), createWorldMaterial(FRAGMENT, blend, SURFACE.sky, {}, BackSide))),
     named('ground', new Mesh(ground(), material(SURFACE.ground))),
-    named('hills', new Mesh(hills(world.id, 48, 2.5, 2.2), material(SURFACE.hills))),
+    named('hills', new Mesh(hills(context.id, 48, 2.5, 2.2), material(SURFACE.hills))),
     named(
       'structures',
       new Mesh(merge([...foundations(random), ...standingStones, ...pedestals]), material(SURFACE.volume)),

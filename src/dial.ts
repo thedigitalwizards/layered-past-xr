@@ -1,60 +1,39 @@
-// The stone is the dial of history. Its position is a number along the worlds: 0 is the first
-// world, 1 the second, and 0.5 is halfway between them, where both are blended. The worlds form a
-// ring: after the last comes the first again, so the stone can be turned endlessly either way.
+// The journey through time. Its position is a number along the contexts: 0 is the first context,
+// 1 the second, and 0.5 is halfway between them, where both are blended. The contexts form a ring:
+// after the last comes the first again, so the visitor can travel endlessly either way.
 
-export const TRANSITION_MS = 600;
-/** Fraction of a world the stone must be pushed to go there by itself on release. */
-export const SNAP_THRESHOLD = 0.2;
+// Long enough to see the two contexts blend on the way from one to the next.
+export const TRANSITION_MS = 900;
 
-/** Wrist twist in VR for one world. Comfortable: about two worlds in each direction from neutral. */
-export const TWIST_DEG_PER_WORLD = 70;
-/** Horizontal swipe or drag on the stone, in CSS pixels, for one world. */
-export const SWIPE_PX_PER_WORLD = 160;
+/** Index of a context on the ring, for any position (also negative ones). */
+export const contextIndex = (position: number, contextCount: number): number =>
+  ((Math.round(position) % contextCount) + contextCount) % contextCount;
 
-/** Index of a world on the ring, for any position (also negative ones). */
-export const worldIndex = (position: number, worldCount: number): number =>
-  ((Math.round(position) % worldCount) + worldCount) % worldCount;
-
-/** Blend weight of every world at a dial position. At most two are non-zero, and they sum to 1. */
-export const worldWeights = (value: number, worldCount: number): number[] => {
+/** Blend weight of every context at a dial position. At most two are non-zero, and they sum to 1. */
+export const contextWeights = (value: number, contextCount: number): number[] => {
   const lower = Math.floor(value);
   const t = value - lower;
-  const a = worldIndex(lower, worldCount);
-  const b = worldIndex(lower + 1, worldCount);
-  return Array.from({ length: worldCount }, (_, i) => (i === a ? 1 - t : 0) + (i === b ? t : 0));
+  const a = contextIndex(lower, contextCount);
+  const b = contextIndex(lower + 1, contextCount);
+  return Array.from({ length: contextCount }, (_, i) => (i === a ? 1 - t : 0) + (i === b ? t : 0));
 };
 
-/** The world the dial is closest to. */
-export const nearestWorld = (value: number, worldCount: number): number => worldIndex(value, worldCount);
+/** The context the dial is closest to. */
+export const nearestContext = (value: number, contextCount: number): number => contextIndex(value, contextCount);
 
 const easeInOut = (t: number): number => (t < 0.5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2);
 
 export type Dial = {
   readonly value: () => number;
-  /** The visitor takes hold of the stone: it follows their hand until they let go. */
-  readonly hold: () => void;
-  /** Sets the position directly (dragging, twisting). */
-  readonly set: (value: number) => void;
-  /** Lets go: like a carousel with fixed stops, the stone glides to the world it was pushed towards. */
-  readonly release: (now: number) => void;
-  /** Animated move to the next or previous world (keys, wheel). */
+  /** Animated move to the next or previous context. */
   readonly step: (direction: 1 | -1, now: number) => void;
+  /** Animated move to a context by index, the short way round the ring. */
+  readonly goTo: (index: number, contextCount: number, now: number) => void;
   readonly update: (now: number) => number;
-};
-
-/** Where the dial goes when let go: a small push in either direction is enough to change world. */
-export const snapTarget = (from: number, value: number): number => {
-  const moved = value - from;
-  return moved >= SNAP_THRESHOLD
-    ? Math.ceil(value - 1e-9)
-    : moved <= -SNAP_THRESHOLD
-      ? Math.floor(value + 1e-9)
-      : Math.round(from);
 };
 
 export const createDial = (options: { readonly instant?: () => boolean } = {}): Dial => {
   let value = 0;
-  let heldFrom: number | null = null;
   let animation: { readonly from: number; readonly to: number; readonly start: number } | null = null;
 
   const animateTo = (to: number, now: number) => {
@@ -65,24 +44,15 @@ export const createDial = (options: { readonly instant?: () => boolean } = {}): 
       animation = { from: value, to, start: now };
     }
   };
+  const target = () => (animation ? animation.to : Math.round(value));
 
   return {
     value: () => value,
-    hold: () => {
-      animation = null;
-      heldFrom = value;
-    },
-    set: (next) => {
-      value = next;
-    },
-    release: (now) => {
-      if (heldFrom === null) return;
-      animateTo(snapTarget(heldFrom, value), now);
-      heldFrom = null;
-    },
-    step: (direction, now) => {
-      const from = animation ? animation.to : Math.round(value);
-      animateTo(from + direction, now);
+    step: (direction, now) => animateTo(target() + direction, now),
+    goTo: (index, contextCount, now) => {
+      const from = target();
+      const ahead = (((index - from) % contextCount) + contextCount) % contextCount;
+      animateTo(from + (ahead > contextCount / 2 ? ahead - contextCount : ahead), now);
     },
     update: (now) => {
       if (animation) {

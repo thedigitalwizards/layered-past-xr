@@ -8,12 +8,12 @@ export type BlendUniforms = {
   readonly uParity: { value: number };
 };
 
-/** Shared by every world: 0 before the stone is picked up (darkness), 1 afterwards. */
+/** Shared by every world: 0 before the visitor begins (darkness), 1 afterwards. */
 export const reveal = { value: 0 };
 
-export const createBlendUniforms = (worldIndex: number): BlendUniforms => ({
+export const createBlendUniforms = (contextIndex: number): BlendUniforms => ({
   uWeight: { value: 0 },
-  uParity: { value: worldIndex % 2 },
+  uParity: { value: contextIndex % 2 },
 });
 
 export const SURFACE = { volume: 0, ground: 1, sky: 2, hills: 3, accent: 4, footprint: 5, smoke: 6 } as const;

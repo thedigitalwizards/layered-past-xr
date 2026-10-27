@@ -6,9 +6,9 @@ export type Overrides = Readonly<Record<string, Approval>>;
 
 export const applyOverrides = (content: Content, overrides: Overrides): Content => ({
   ...content,
-  worlds: content.worlds.map((world) => ({
-    ...world,
-    claims: world.claims.map((claim) => (overrides[claim.id] ? { ...claim, approval: overrides[claim.id]! } : claim)),
+  contexts: content.contexts.map((context) => ({
+    ...context,
+    claims: context.claims.map((claim) => (overrides[claim.id] ? { ...claim, approval: overrides[claim.id]! } : claim)),
   })),
 });
 

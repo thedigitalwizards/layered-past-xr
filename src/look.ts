@@ -10,17 +10,14 @@ type OrientationEventWithPermission = typeof DeviceOrientationEvent & {
 
 export type Look = {
   readonly drag: (dx: number, dy: number) => void;
-  /** Eases the view to a pitch (used to level the view after picking up the stone). */
-  readonly pitchTo: (deg: number) => void;
   /** iOS asks for permission, which needs a user gesture: call from a tap. */
   readonly useDeviceOrientation: () => Promise<void>;
-  readonly update: (dtMs: number) => void;
+  readonly update: () => void;
 };
 
 export const createLook = (camera: PerspectiveCamera, initialPitch: number): Look => {
   let yaw = 0;
   let pitch = initialPitch;
-  let pitchTarget: number | null = null;
   let device: { alpha: number; beta: number; gamma: number } | null = null;
   // Dragging while the phone steers adds to the phone's heading instead of fighting it.
   let deviceYawOffset = 0;
@@ -35,7 +32,6 @@ export const createLook = (camera: PerspectiveCamera, initialPitch: number): Loo
 
   return {
     drag: (dx, dy) => {
-      pitchTarget = null;
       if (device) {
         deviceYawOffset -= dx * DEG_PER_PX;
         return;
@@ -43,7 +39,6 @@ export const createLook = (camera: PerspectiveCamera, initialPitch: number): Loo
       yaw -= dx * DEG_PER_PX;
       pitch = MathUtils.clamp(pitch + dy * DEG_PER_PX, -PITCH_LIMIT, PITCH_LIMIT);
     },
-    pitchTo: (deg) => (pitchTarget = deg),
     useDeviceOrientation: async () => {
       if (!('DeviceOrientationEvent' in window)) return;
       const ctor = DeviceOrientationEvent as OrientationEventWithPermission;
@@ -59,12 +54,7 @@ export const createLook = (camera: PerspectiveCamera, initialPitch: number): Loo
         device = { alpha: e.alpha, beta: e.beta, gamma: e.gamma };
       });
     },
-    update: (dtMs) => {
-      if (pitchTarget !== null) {
-        const step = (dtMs / 1000) * 90;
-        pitch = Math.abs(pitchTarget - pitch) <= step ? pitchTarget : pitch + Math.sign(pitchTarget - pitch) * step;
-        if (pitch === pitchTarget) pitchTarget = null;
-      }
+    update: () => {
       if (device) {
         const orient = MathUtils.degToRad(screen.orientation?.angle ?? 0);
         euler.set(

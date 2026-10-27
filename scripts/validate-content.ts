@@ -10,5 +10,5 @@ if (!result.ok) {
   console.error(`content/demo.json is invalid:\n${result.errors.map((e) => `  - ${e}`).join('\n')}`);
   process.exit(1);
 }
-const claims = result.content.worlds.reduce((n, w) => n + w.claims.length, 0);
-console.log(`content/demo.json is valid: ${result.content.worlds.length} worlds, ${claims} claims.`);
+const claims = result.content.contexts.reduce((n, w) => n + w.claims.length, 0);
+console.log(`content/demo.json is valid: ${result.content.contexts.length} contexts, ${claims} claims.`);

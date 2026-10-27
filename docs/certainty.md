@@ -1,36 +1,45 @@
 # Certainty
 
-Each world's whole look follows its certainty. The less evidence stands behind a world, the less it looks
-like a solid place: a lit, matte site becomes an engraving, and then almost nothing. The certainty is
-always written out as well, never shown by colour alone.
+Each context is represented only to the level its evidence supports. Its whole look follows its certainty:
+the less evidence stands behind a context, the less it looks like a solid place. A lit, matte site becomes
+an engraving, and then almost nothing. The certainty is always written out as well, never shown by colour
+alone.
 
-| Certainty    | World style                                                | Label colour | Status                         |
-| ------------ | ---------------------------------------------------------- | ------------ | ------------------------------ |
-| documented   | Solid, lit, matte materials                                | `#2E6B4F`    | in the demo (World A)          |
-| interpreted  | Painted look                                               | `#2F5D8A`    | label only; no world style yet |
-| hypothesis   | Line drawing                                               | `#9A5413`    | label only; no world style yet |
-| imagined     | Engraving: hatching on sepia paper                         | `#6B5A86`    | in the demo (World B)          |
-| unknown      | Faint dashed outlines, no volume                           | `#5E6762`    | label only; no world style yet |
-| absent voice | Near-dark, faint dashed outlines on the ground, no volumes | `#5E6762`    | in the demo (World C)          |
+| Certainty    | Look of the surroundings                                   | Label colour | Status                          |
+| ------------ | ---------------------------------------------------------- | ------------ | ------------------------------- |
+| documented   | Solid, lit, matte materials                                | `#2E6B4F`    | in the demo (Context A)         |
+| interpreted  | Painted look                                               | `#2F5D8A`    | label only; no surroundings yet |
+| hypothesis   | Line drawing                                               | `#9A5413`    | label only; no surroundings yet |
+| imagined     | Engraving: hatching on sepia paper                         | `#6B5A86`    | in the demo (Context B)         |
+| unknown      | Faint dashed outlines, no volume                           | `#5E6762`    | label only; no surroundings yet |
+| absent voice | Near-dark, faint dashed outlines on the ground, no volumes | `#5E6762`    | in the demo (Context C)         |
 
-Claims can use any certainty (it is shown as a pill on the lens card). A _world_ can only use a certainty
-that has a world style: the build fails otherwise, with a message saying which style is missing.
+Claims can use any certainty (it is shown on the lens card). A _context_ can only use a certainty whose
+surroundings exist: the build fails otherwise, with a message saying which style is missing.
 
-## The stone follows the worlds
+## The baetyl has its own certainty
 
-| `stone.style` | Look                                                                      |
-| ------------- | ------------------------------------------------------------------------- |
-| `solid`       | Upright, matte gabbro with a fine speckle                                 |
-| `engraving`   | Drawn in the engraving style, smoother, with a faint gold rim (idealised) |
-| `outline`     | An outline only, barely visible                                           |
+The baetyl stays at the centre in every context, but how certain its presence and form are can differ from
+the context's certainty. For example, it can be _unknown_ in a context where it is not attested. Its look
+and its certainty are set per context in `baetyl` (see [content-model.md](content-model.md)), and the
+label always shows both: the context's certainty and the baetyl's.
 
-## How two worlds are blended
+| `baetyl.style` | Look                                                                      |
+| -------------- | ------------------------------------------------------------------------- |
+| `solid`        | Matte, dark green-grey stone with a fine speckle, on a low base           |
+| `engraving`    | Drawn in the engraving style, smoother, with a faint gold rim (idealised) |
+| `outline`      | An outline only, barely visible                                           |
 
-Two complete worlds overlap halfway through a turn. Instead of transparency, each world draws a share of
-the pixels in an ordered dither pattern, and neighbouring worlds use complementary patterns. Together they
-cover every pixel exactly once, so there are no sorting problems and no flicker between two skies, and
-it costs no more than drawing one world. A world with no share is not drawn at all. The stone's states
-share their world's pattern, so the stone blends in step with its surroundings.
+In the demo the baetyl is _documented_ in Context A, _imagined_ in Context B and _unknown_ in Context C.
+
+## How two contexts are blended
+
+On the way from one context to the next, both are visible at once. Instead of transparency, each context
+draws a share of the pixels in an ordered dither pattern, and neighbouring contexts use complementary
+patterns. Together they cover every pixel exactly once, so there are no sorting problems and no flicker
+between two skies, and it costs no more than drawing one context. A context with no share is not drawn at
+all. The baetyl's looks share their context's pattern, so the baetyl blends in step with its surroundings.
 
 The shaders are in `src/worlds/blend.ts` (shared), `src/worlds/solid.ts`, `src/worlds/engraving.ts`,
-`src/worlds/absent.ts` and `src/stone.ts`.
+`src/worlds/absent.ts` and `src/baetyl.ts`. In the code, a "world" is the rendered surroundings of one
+context.

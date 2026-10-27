@@ -19,7 +19,7 @@ export const wrapText = (text: string, maxWidth: number, measure: (s: string) =>
     }, []);
 
 export const PANEL_COLOURS = { bg: '#FFFFFF', ink: '#111111', muted: '#6B6B6B', rule: '#E2E2E2' } as const;
-const SANS = 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+export const SANS = 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
 export const DISPLAY_FONT = SANS;
 export const LABEL_FONT = SANS;
 

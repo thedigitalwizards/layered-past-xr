@@ -2,10 +2,10 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/thedigitalwizards/layered-past-xr/schema/demo.schema.json",
   "title": "One Stone, Many Worlds — demo content",
-  "description": "A key object and the worlds the visitor travels through by turning it. See docs/content-model.md.",
+  "description": "A persistent object (the baetyl) and the historical and reception contexts the visitor moves through around it. See docs/content-model.md.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["object", "worlds"],
+  "required": ["object", "contexts"],
   "properties": {
     "$schema": { "type": "string" },
     "object": {
@@ -17,12 +17,23 @@
         "title": { "$ref": "#/$defs/text" }
       }
     },
-    "worlds": {
-      "description": "In dial order: turning the stone moves from the first world to the last.",
+    "pendingContexts": {
+      "description": "Contexts planned for the pilot but not yet co-designed with the heritage adviser. Shown only as faint slots labelled \"Pending heritage co-design\"; they carry no claims.",
+      "type": "array",
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title"],
+        "properties": { "id": { "$ref": "#/$defs/id" }, "title": { "$ref": "#/$defs/text" } }
+      }
+    },
+    "contexts": {
+      "description": "Historical and reception contexts, in the order the visitor travels through them. After the last comes the first again.",
       "type": "array",
       "minItems": 2,
       "maxItems": 6,
-      "items": { "$ref": "#/$defs/world" }
+      "items": { "$ref": "#/$defs/context" }
     }
   },
   "$defs": {
@@ -41,10 +52,10 @@
       ]
     },
     "certainty": { "enum": ["documented", "interpreted", "hypothesis", "imagined", "unknown", "absent-voice"] },
-    "world": {
+    "context": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "title", "period", "voice", "certainty", "audio", "stone", "claims"],
+      "required": ["id", "title", "period", "voice", "certainty", "audio", "baetyl", "claims"],
       "properties": {
         "id": { "$ref": "#/$defs/id" },
         "title": { "$ref": "#/$defs/text" },
@@ -68,11 +79,15 @@
             }
           }
         },
-        "stone": {
+        "baetyl": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["style"],
-          "properties": { "style": { "enum": ["solid", "engraving", "outline"] } }
+          "description": "How the baetyl appears in this context, and how certain its presence and form are here.",
+          "required": ["style", "certainty"],
+          "properties": {
+            "style": { "enum": ["solid", "engraving", "outline"] },
+            "certainty": { "$ref": "#/$defs/certainty" }
+          }
         },
         "claims": { "type": "array", "minItems": 1, "maxItems": 6, "items": { "$ref": "#/$defs/claim" } }
       }

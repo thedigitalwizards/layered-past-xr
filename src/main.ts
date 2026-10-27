@@ -1,16 +1,18 @@
+import { Group } from 'three';
 import './styles.css';
 import rawContent from '../content/demo.json';
 import { applyOverrides, loadOverrides, STORAGE_KEY } from './approvals.ts';
 import { createVoices } from './audio.ts';
+import { createBaetyl } from './baetyl.ts';
 import type { Content } from './content.ts';
 import { attachControls } from './controls.ts';
 import { mountDebug } from './debug.ts';
-import { createDial, nearestWorld, TRANSITION_MS, worldWeights } from './dial.ts';
+import { createDial, nearestContext, TRANSITION_MS, contextWeights } from './dial.ts';
 import { createLens } from './lens.ts';
 import { createLook } from './look.ts';
 import { createStage } from './scene.ts';
 import { createStore, initialState } from './state.ts';
-import { createStone, STONE_HEIGHT_M } from './stone.ts';
+import { createTimeDial } from './time-dial.ts';
 import { mountSoundButton } from './ui/buttons.ts';
 import { mountCaption } from './ui/caption.ts';
 import { mountClaimsNav } from './ui/claims-nav.ts';
@@ -19,6 +21,7 @@ import { mountLabel } from './ui/label.ts';
 import { mountLensCard } from './ui/lens-card.ts';
 import { mountPrompt } from './ui/prompt.ts';
 import { reveal } from './worlds/blend.ts';
+import { VISITOR_DISTANCE_M } from './worlds/pieces.ts';
 import { buildWorld, setWorldWeight } from './worlds/world.ts';
 import { setupXr } from './xr.ts';
 
@@ -30,34 +33,25 @@ const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
 const stage = createStage(byId('viewport'));
 const { renderer, scene, camera, world } = stage;
-const worlds = content.worlds.map(buildWorld);
-worlds.forEach((w) => world.add(w.group));
-const stone = createStone(
-  content.worlds,
-  worlds.map((w) => w.blend),
+
+// Everything in a context is laid out around the baetyl, which stands in front of the visitor.
+const site = new Group();
+site.position.set(0, 0, -VISITOR_DISTANCE_M);
+world.add(site);
+const worlds = content.contexts.map(buildWorld);
+worlds.forEach((w) => site.add(w.group));
+site.add(
+  createBaetyl(
+    content.contexts,
+    worlds.map((w) => w.blend),
+  ),
 );
 const lens = createLens(content);
-world.add(lens.group);
-
-// Before the experience starts, the stone waits on a plinth just in front of the visitor.
-const PLINTH_DISTANCE_M = 1.3;
-stone.plinth.position.set(0, 0, -PLINTH_DISTANCE_M);
-world.add(stone.plinth);
-const putOnPlinth = () => {
-  world.add(stone.object);
-  stone.object.position.set(0, 0.9 + STONE_HEIGHT_M / 2, -PLINTH_DISTANCE_M);
-  stone.object.rotation.set(0, 0, 0);
-};
-const holdInView = () => {
-  camera.add(stone.object);
-  stone.object.position.set(0, -0.2, -0.55);
-  stone.object.rotation.set(0.12, 0, 0);
-};
-putOnPlinth();
+site.add(lens.group);
 
 const dial = createDial({ instant: () => reducedMotion.matches });
-const look = createLook(camera, -25);
-const voices = createVoices(camera, content.worlds);
+const look = createLook(camera, -6);
+const voices = createVoices(camera, content.contexts);
 
 const label = mountLabel(byId('label'), content);
 const caption = mountCaption(byId('caption'), content);
@@ -67,12 +61,18 @@ const claimsNav = mountClaimsNav(byId('claims-nav'), store);
 mountSoundButton(byId<HTMLButtonElement>('sound'), store);
 const debug = new URLSearchParams(location.search).has('debug') ? mountDebug(renderer) : null;
 
+const timeDial = createTimeDial(content, {
+  step: (direction) => dial.step(direction, performance.now()),
+  goTo: (index) => dial.goTo(index, worlds.length, performance.now()),
+});
+site.add(timeDial.group);
+
 let aimedClaimId: string | null = null;
 attachControls({
   canvas: renderer.domElement,
   camera,
-  stoneTarget: stone.hitTarget,
   claimTargets: lens.targets,
+  pressTargets: timeDial.targets,
   dial,
   look,
   store,
@@ -81,30 +81,24 @@ attachControls({
   onAim: (id) => (aimedClaimId = id),
 });
 
-const xr = setupXr({
-  stage,
-  stone,
-  lens,
-  dial,
-  store,
-  content: () => content,
-  putOnPlinth,
-  holdInView,
-});
+const xr = setupXr({ stage, lens, dial, store, content: () => content, pressTargets: timeDial.targets });
 
-prompt.show('Pick up the stone');
+const beginButton = byId<HTMLButtonElement>('begin');
+beginButton.addEventListener('click', () => store.dispatch({ type: 'begin' }));
+const travelHint = matchMedia('(pointer: coarse)').matches
+  ? 'Swipe left or right to move through time'
+  : 'Scroll, or press ← →, to move through time';
 let startedAt = -1;
 let travelled = false;
 
 store.subscribe((state, previous) => {
   if (state.started && !previous.started) {
     startedAt = performance.now();
-    stone.plinth.visible = false;
-    if (!renderer.xr.isPresenting) holdInView();
-    look.pitchTo(-4);
+    beginButton.hidden = true;
+    timeDial.setVisible(true);
     void voices.start();
     if (matchMedia('(pointer: coarse)').matches) void look.useDeviceOrientation();
-    prompt.show(renderer.xr.isPresenting ? null : 'Turn the stone to travel');
+    prompt.show(renderer.xr.isPresenting ? null : travelHint);
   }
   if (state.muted !== previous.muted) voices.setMuted(state.muted);
   if (state.approvals !== previous.approvals) content = applyOverrides(baseContent, state.approvals);
@@ -122,22 +116,20 @@ renderer.setAnimationLoop((now) => {
   last = now;
   const started = store.get().started;
   const value = dial.update(now);
-  const weights = worldWeights(value, worlds.length);
-  const nearest = nearestWorld(value, worlds.length);
+  const weights = contextWeights(value, worlds.length);
+  const nearest = nearestContext(value, worlds.length);
 
-  // The worlds come out of the dark when the stone is picked up.
+  // The contexts come out of the dark when the visitor begins.
   reveal.value = started ? (reducedMotion.matches ? 1 : Math.min(1, (now - startedAt) / TRANSITION_MS)) : 0;
   worlds.forEach((w, i) => setWorldWeight(w, weights[i] ?? 0));
-  if (!renderer.xr.isPresenting) {
-    stone.turnTo(value);
-    look.update(dt);
-  }
+  if (!renderer.xr.isPresenting) look.update();
 
   if (started) {
     voices.update(weights);
     label.render(weights);
     caption.render(weights);
     claimsNav.render(content, nearest);
+    timeDial.render(nearest);
     if (!travelled && nearest !== 0) {
       travelled = true;
       prompt.show(null);

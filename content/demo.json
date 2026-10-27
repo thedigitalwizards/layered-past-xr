@@ -2,29 +2,26 @@
   "$schema": "../schema/demo.schema.json",
   "object": {
     "id": "demo-stone",
-    "title": "Demo Stone"
+    "title": "Demo Baetyl"
   },
-  "worlds": [
+  "contexts": [
     {
-      "id": "world-a",
-      "title": "World A",
+      "id": "context-a",
+      "title": "Context A",
       "period": "[Placeholder period]",
       "voice": "archaeology",
       "certainty": "documented",
       "audio": {
-        "src": "audio/world-a.m4a",
+        "src": "audio/context-a.m4a",
         "caption": "These stones were measured and recorded where they stand. What you see here is what was found.",
         "synthetic": true
-      },
-      "stone": {
-        "style": "solid"
       },
       "claims": [
         {
           "id": "a-1",
           "title": "Measured position",
           "anchor": [-1.54, 1.0, -4.23],
-          "text": "Example claim: the stone's position was surveyed in place. [Placeholder — pending heritage expert validation]",
+          "text": "Example claim: the baetyl's position was surveyed in place. [Placeholder — pending heritage expert validation]",
           "voice": "archaeology",
           "certainty": "documented",
           "evidence": [
@@ -85,21 +82,22 @@
             "date": null
           }
         }
-      ]
+      ],
+      "baetyl": {
+        "style": "solid",
+        "certainty": "documented"
+      }
     },
     {
-      "id": "world-b",
-      "title": "World B",
+      "id": "context-b",
+      "title": "Context B",
       "period": "[Placeholder period]",
       "voice": "european-imagination",
       "certainty": "imagined",
       "audio": {
-        "src": "audio/world-b.m4a",
+        "src": "audio/context-b.m4a",
         "caption": "I have never stood on this ground, yet I can tell you how the temple looked: tall columns, a golden roof, a sky full of smoke.",
         "synthetic": true
-      },
-      "stone": {
-        "style": "engraving"
       },
       "claims": [
         {
@@ -162,21 +160,22 @@
             "date": null
           }
         }
-      ]
+      ],
+      "baetyl": {
+        "style": "engraving",
+        "certainty": "imagined"
+      }
     },
     {
-      "id": "world-c",
-      "title": "World C",
+      "id": "context-c",
+      "title": "Context C",
       "period": "[Placeholder period]",
       "voice": "ancient-self-depiction",
       "certainty": "absent-voice",
       "audio": {
-        "src": "audio/world-c.m4a",
+        "src": "audio/context-c.m4a",
         "caption": "Someone once lived beside this stone. Their words were never written down, and we have not heard them yet.",
         "synthetic": true
-      },
-      "stone": {
-        "style": "outline"
       },
       "claims": [
         {
@@ -213,7 +212,37 @@
             "date": null
           }
         }
-      ]
+      ],
+      "baetyl": {
+        "style": "outline",
+        "certainty": "unknown"
+      }
+    }
+  ],
+  "pendingContexts": [
+    {
+      "id": "context-d",
+      "title": "Context D"
+    },
+    {
+      "id": "context-e",
+      "title": "Context E"
+    },
+    {
+      "id": "context-f",
+      "title": "Context F"
+    },
+    {
+      "id": "context-g",
+      "title": "Context G"
+    },
+    {
+      "id": "context-h",
+      "title": "Context H"
+    },
+    {
+      "id": "context-i",
+      "title": "Context I"
     }
   ]
 }

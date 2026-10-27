@@ -1,4 +1,5 @@
 // Types for content/demo.json (keep in sync with schema/demo.schema.json) and pure selectors.
+// A context is one historical or reception context the baetyl is seen in.
 
 export const VOICES = [
   'archaeology',
@@ -15,8 +16,8 @@ export type Voice = (typeof VOICES)[number];
 export const CERTAINTIES = ['documented', 'interpreted', 'hypothesis', 'imagined', 'unknown', 'absent-voice'] as const;
 export type Certainty = (typeof CERTAINTIES)[number];
 
-export const STONE_STYLES = ['solid', 'engraving', 'outline'] as const;
-export type StoneStyle = (typeof STONE_STYLES)[number];
+export const BAETYL_STYLES = ['solid', 'engraving', 'outline'] as const;
+export type BaetylStyle = (typeof BAETYL_STYLES)[number];
 
 export type ApprovalStatus = 'draft' | 'reviewed' | 'approved';
 export type Approval = { readonly status: ApprovalStatus; readonly by: string | null; readonly date: string | null };
@@ -34,28 +35,35 @@ export type Claim = {
   readonly approval: Approval;
 };
 
-export type World = {
+export type Context = {
   readonly id: string;
   readonly title: string;
   readonly period: string;
   readonly voice: Voice;
   readonly certainty: Certainty;
   readonly audio: { readonly src: string; readonly caption: string; readonly synthetic: boolean };
-  readonly stone: { readonly style: StoneStyle };
+  /** The baetyl's own look and certainty can differ from the context's (e.g. unknown where it is not attested). */
+  readonly baetyl: { readonly style: BaetylStyle; readonly certainty: Certainty };
   readonly claims: readonly Claim[];
 };
 
+export type PendingContext = { readonly id: string; readonly title: string };
+
 export type Content = {
   readonly object: { readonly id: string; readonly title: string };
-  readonly worlds: readonly World[];
+  readonly contexts: readonly Context[];
+  /** Planned contexts with no content yet (see schema). */
+  readonly pendingContexts?: readonly PendingContext[];
 };
 
-export type ClaimInWorld = { readonly claim: Claim; readonly world: World; readonly worldIndex: number };
+export type ClaimInContext = { readonly claim: Claim; readonly context: Context; readonly contextIndex: number };
 
-export const allClaims = (content: Content): ClaimInWorld[] =>
-  content.worlds.flatMap((world, worldIndex) => world.claims.map((claim) => ({ claim, world, worldIndex })));
+export const allClaims = (content: Content): ClaimInContext[] =>
+  content.contexts.flatMap((context, contextIndex) =>
+    context.claims.map((claim) => ({ claim, context, contextIndex })),
+  );
 
-export const findClaim = (content: Content, claimId: string): ClaimInWorld | undefined =>
+export const findClaim = (content: Content, claimId: string): ClaimInContext | undefined =>
   allClaims(content).find((c) => c.claim.id === claimId);
 
 export const isApproved = (approval: Approval): boolean => approval.status === 'approved';

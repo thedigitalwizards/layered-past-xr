@@ -17,38 +17,49 @@ describe('content validation', () => {
 
   it('rejects unknown voices, certainties and approval states', () => {
     const data = demo();
-    data.worlds[0].voice = 'narrator';
-    data.worlds[0].claims[0].certainty = 'probable';
-    data.worlds[1].claims[0].approval.status = 'signed';
+    data.contexts[0].voice = 'narrator';
+    data.contexts[0].claims[0].certainty = 'probable';
+    data.contexts[1].claims[0].approval.status = 'signed';
     expect(errors(data)).toHaveLength(3);
   });
 
-  it('rejects a world whose certainty has no world style yet', () => {
+  it('rejects a context whose certainty has no context style yet', () => {
     const data = demo();
-    data.worlds[1].certainty = 'hypothesis';
-    expect(errors(data)).toEqual(['world "world-b": there is no world style for certainty "hypothesis" yet']);
+    data.contexts[1].certainty = 'hypothesis';
+    expect(errors(data)).toEqual(['context "context-b": there is no context style for certainty "hypothesis" yet']);
   });
 
   it('rejects missing audio, duplicate ids and approvals without a reviewer', () => {
     const data = demo();
-    data.worlds[0].audio.src = 'audio/missing.m4a';
-    data.worlds[1].claims[0].id = 'a-1';
-    data.worlds[2].claims[0].approval = { status: 'approved', by: null, date: null };
+    data.contexts[0].audio.src = 'audio/missing.m4a';
+    data.contexts[1].claims[0].id = 'a-1';
+    data.contexts[2].claims[0].approval = { status: 'approved', by: null, date: null };
     expect(errors(data)).toEqual([
       'duplicate claim id "a-1"',
-      'world "world-a": audio file public/audio/missing.m4a not found',
+      'context "context-a": audio file public/audio/missing.m4a not found',
       'claim "c-1": a approved claim needs "by" and "date"',
     ]);
   });
 
   it('keeps every demo text a placeholder and every voice labelled synthetic', () => {
     const content = demo() as Content;
-    content.worlds.forEach((world) => {
-      expect(world.audio.synthetic).toBe(true);
-      expect(world.claims.length).toBeGreaterThanOrEqual(2);
-      world.claims.forEach((c) => expect(c.text).toContain('[Placeholder — pending heritage expert validation]'));
+    content.contexts.forEach((context) => {
+      expect(context.audio.synthetic).toBe(true);
+      expect(context.claims.length).toBeGreaterThanOrEqual(2);
+      context.claims.forEach((c) => expect(c.text).toContain('[Placeholder — pending heritage expert validation]'));
     });
     expect(JSON.stringify(content)).not.toMatch(/aphrodite|paphos/i);
+  });
+});
+
+describe('pending contexts', () => {
+  it('are empty, generic slots: no claims, no voices, no historical periods', () => {
+    const data = demo();
+    expect(data.pendingContexts).toHaveLength(6);
+    data.pendingContexts.forEach((p: Record<string, unknown>) =>
+      expect(Object.keys(p).sort()).toEqual(['id', 'title']),
+    );
+    expect(JSON.stringify(data)).not.toMatch(/bronze|hellenistic|roman|ottoman|british|medieval|byzantine/i);
   });
 });
 

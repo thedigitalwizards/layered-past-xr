@@ -1,4 +1,4 @@
-// Glowing points: the details behind which a claim waits. Only the world in front of the visitor
+// Glowing points: the details behind which a claim waits. Only the context in front of the visitor
 // shows its points, fading in and out with the dial.
 import {
   AdditiveBlending,
@@ -39,8 +39,8 @@ export const createLens = (content: Content): Lens => {
   const group = new Group();
   const texture = glowTexture();
   const hitMaterial = new MeshBasicMaterial({ visible: false });
-  const points = content.worlds.flatMap((world, worldIndex) =>
-    world.claims.map((claim, k) => {
+  const points = content.contexts.flatMap((context, contextIndex) =>
+    context.claims.map((claim, k) => {
       const holder = new Group();
       holder.position.set(...claim.anchor);
       const glow = new Sprite(
@@ -50,7 +50,7 @@ export const createLens = (content: Content): Lens => {
       hit.userData.claimId = claim.id;
       holder.add(glow, hit);
       group.add(holder);
-      return { holder, glow, hit, worldIndex, claimId: claim.id, phase: k * 1.7 };
+      return { holder, glow, hit, contextIndex, claimId: claim.id, phase: k * 1.7 };
     }),
   );
   let active: Mesh[] = [];
@@ -61,8 +61,8 @@ export const createLens = (content: Content): Lens => {
     update: (weights, now, aimedClaimId) => {
       active = [];
       points.forEach((p) => {
-        // Points belong to the world in front: they fade out well before the halfway mark.
-        const share = Math.min(1, Math.max(0, ((weights[p.worldIndex] ?? 0) - 0.5) * 2));
+        // Points belong to the context in front: they fade out well before the halfway mark.
+        const share = Math.min(1, Math.max(0, ((weights[p.contextIndex] ?? 0) - 0.5) * 2));
         p.holder.visible = share > 0.01;
         if (share > 0.5) active.push(p.hit);
         const aimed = p.claimId === aimedClaimId;

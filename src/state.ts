@@ -9,7 +9,7 @@ export type State = {
 };
 
 export type Action =
-  | { readonly type: 'pickUp' }
+  | { readonly type: 'begin' }
   | { readonly type: 'openClaim'; readonly claimId: string }
   | { readonly type: 'closeClaim' }
   | { readonly type: 'toggleSound' }
@@ -24,7 +24,7 @@ export const initialState = (approvals: Overrides = {}): State => ({
 
 export const reduce = (state: State, action: Action): State => {
   switch (action.type) {
-    case 'pickUp':
+    case 'begin':
       return state.started ? state : { ...state, started: true };
     case 'openClaim':
       return !state.started || state.openClaimId === action.claimId ? state : { ...state, openClaimId: action.claimId };

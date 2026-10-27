@@ -13,22 +13,24 @@ const duplicates = (ids: readonly string[]) => [...new Set(ids.filter((id, i) =>
 
 /** Rules the schema cannot express. `fileExists` checks audio paths (relative to public/). */
 export const contentErrors = (content: Content, fileExists: (path: string) => boolean = () => true): string[] => {
-  const claims = content.worlds.flatMap((w) => w.claims);
+  const claims = content.contexts.flatMap((w) => w.claims);
   return [
-    ...duplicates(content.worlds.map((w) => w.id)).map((id) => `duplicate world id "${id}"`),
+    ...duplicates([...content.contexts, ...(content.pendingContexts ?? [])].map((w) => w.id)).map(
+      (id) => `duplicate context id "${id}"`,
+    ),
     ...duplicates(claims.map((c) => c.id)).map((id) => `duplicate claim id "${id}"`),
-    ...content.worlds
+    ...content.contexts
       .filter((w) => !WORLD_STYLES[w.certainty])
-      .map((w) => `world "${w.id}": there is no world style for certainty "${w.certainty}" yet`),
-    ...content.worlds
+      .map((w) => `context "${w.id}": there is no context style for certainty "${w.certainty}" yet`),
+    ...content.contexts
       .filter((w) => !fileExists(w.audio.src))
-      .map((w) => `world "${w.id}": audio file public/${w.audio.src} not found`),
+      .map((w) => `context "${w.id}": audio file public/${w.audio.src} not found`),
     ...claims
       .filter((c) => {
         const d = Math.hypot(c.anchor[0], c.anchor[2]);
         return d < 2 || d > 20;
       })
-      .map((c) => `claim "${c.id}": anchor should be 2–20 m from the visitor`),
+      .map((c) => `claim "${c.id}": anchor should be 2–20 m from the baetyl`),
     ...claims
       .filter((c) => c.approval.status !== 'draft' && (!c.approval.by || !c.approval.date))
       .map((c) => `claim "${c.id}": a ${c.approval.status} claim needs "by" and "date"`),

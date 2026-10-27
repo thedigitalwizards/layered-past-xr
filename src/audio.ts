@@ -1,7 +1,7 @@
-// One voice at a time. Entering a world fades out the voice that was speaking, then the new
-// world's voice speaks once, from its first word. It does not repeat until the world is entered again.
+// One voice at a time. Entering a context fades out the voice that was speaking, then the new
+// context's voice speaks once, from its first word. It does not repeat until the context is entered again.
 import { Audio, AudioListener, AudioLoader, type Object3D } from 'three';
-import type { World } from './content.ts';
+import type { Context } from './content.ts';
 
 const LEVEL = 0.9;
 /** How long the old voice takes to fade away before the new one starts, in seconds. */
@@ -9,24 +9,24 @@ export const FADE_OUT_S = 0.7;
 const FADE_IN_S = 0.15;
 
 /**
- * Which world's voice should be speaking: the strongest one, with some hysteresis so a stone held
- * right between two worlds does not flip between their voices.
+ * Which context's voice should be speaking: the strongest one, with some hysteresis so a journey paused
+ * right between two contexts does not flip between their voices.
  */
-export const speakingWorld = (weights: readonly number[], current: number): number => {
+export const speakingContext = (weights: readonly number[], current: number): number => {
   const strongest = weights.indexOf(Math.max(...weights));
   return current >= 0 && (weights[current] ?? 0) > 0.4 ? current : strongest;
 };
 
 export type Voices = {
-  /** Browsers only allow audio after a user gesture, so call this from one (picking up the stone). */
+  /** Browsers only allow audio after a user gesture, so call this from one (Begin). */
   readonly start: () => Promise<void>;
   readonly update: (weights: readonly number[]) => void;
   readonly setMuted: (muted: boolean) => void;
 };
 
-export const createVoices = (listenerParent: Object3D, worlds: readonly World[]): Voices => {
+export const createVoices = (listenerParent: Object3D, contexts: readonly Context[]): Voices => {
   let listener: AudioListener | null = null;
-  let voices: (Audio | null)[] = worlds.map(() => null);
+  let voices: (Audio | null)[] = contexts.map(() => null);
   let speaking = -1;
   let pending: { readonly index: number; readonly at: number } | null = null;
   let muted = false;
@@ -66,19 +66,19 @@ export const createVoices = (listenerParent: Object3D, worlds: readonly World[])
       await listener.context.resume().catch(() => undefined);
       const loader = new AudioLoader();
       voices = await Promise.all(
-        worlds.map(async (world) => {
+        contexts.map(async (context) => {
           try {
-            const buffer = await loader.loadAsync(`${import.meta.env.BASE_URL}${world.audio.src}`);
+            const buffer = await loader.loadAsync(`${import.meta.env.BASE_URL}${context.audio.src}`);
             const voice = new Audio(listener!);
             voice.setBuffer(buffer);
             voice.setLoop(false);
             voice.setVolume(0);
-            const quiet = world.certainty === 'absent-voice';
+            const quiet = context.certainty === 'absent-voice';
             // An absent voice is heard more quietly, as if from further away.
             voice.userData.level = quiet ? LEVEL * 0.6 : LEVEL;
             return voice;
           } catch (error) {
-            console.warn(`Could not load ${world.audio.src}`, error);
+            console.warn(`Could not load ${context.audio.src}`, error);
             return null;
           }
         }),
@@ -87,7 +87,7 @@ export const createVoices = (listenerParent: Object3D, worlds: readonly World[])
     update: (weights) => {
       if (!listener || voices.every((v) => !v)) return;
       const now = listener.context.currentTime;
-      const next = speakingWorld(weights, speaking);
+      const next = speakingContext(weights, speaking);
       if (next !== speaking) {
         const wasSpeaking = speaking >= 0 && fadeOut(speaking, now);
         speaking = next;

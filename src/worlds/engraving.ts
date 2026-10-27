@@ -1,7 +1,7 @@
 // Imagined: an engraving on sepia paper. The layout is the temple the voice describes: "tall columns,
 // a golden roof, a sky full of smoke" — idealised, symmetrical, and drawn rather than built.
 import { BackSide, CylinderGeometry, Float32BufferAttribute, Group, Mesh } from 'three';
-import type { World } from '../content.ts';
+import type { Context } from '../content.ts';
 import { createBlendUniforms, createWorldMaterial, SURFACE } from './blend.ts';
 import { blob, block, column, ground, hills, merge, named, pointAt, seededRandom, SHAPE, sky } from './pieces.ts';
 import type { WorldView } from './world.ts';
@@ -47,8 +47,8 @@ const ring = (count: number, distance: number, offsetDeg = 0) =>
     at: pointAt(yaw, distance),
   }));
 
-export const buildEngravingWorld = (world: World, index: number): WorldView => {
-  const random = seededRandom(world.id);
+export const buildEngravingWorld = (context: Context, index: number): WorldView => {
+  const random = seededRandom(context.id);
   const blend = createBlendUniforms(index);
   const material = (surface: number) => createWorldMaterial(FRAGMENT, blend, surface);
 
@@ -71,7 +71,7 @@ export const buildEngravingWorld = (world: World, index: number): WorldView => {
       return blob([x, 9 + random() * 9, z], 0.8 + random() * 1.4);
     }),
   ];
-  const pedestals = world.claims.map((c) =>
+  const pedestals = context.claims.map((c) =>
     column([c.anchor[0], c.anchor[2]], 0.22, Math.max(0.2, c.anchor[1] - 0.12)),
   );
 
@@ -84,11 +84,11 @@ export const buildEngravingWorld = (world: World, index: number): WorldView => {
   );
 
   const group = new Group();
-  group.name = world.id;
+  group.name = context.id;
   group.add(
     named('sky', new Mesh(sky(), createWorldMaterial(FRAGMENT, blend, SURFACE.sky, {}, BackSide))),
     named('ground', new Mesh(ground(), material(SURFACE.ground))),
-    named('hills', new Mesh(hills(world.id, 50, 4, 3.5), material(SURFACE.hills))),
+    named('hills', new Mesh(hills(context.id, 50, 4, 3.5), material(SURFACE.hills))),
     named('structures', new Mesh(merge([...temple, altar, ...pedestals]), material(SURFACE.volume))),
     named('smoke', new Mesh(merge(smoke), material(SURFACE.smoke))),
     named('roof', new Mesh(roof, material(SURFACE.accent))),

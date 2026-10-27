@@ -25,6 +25,16 @@ export const seededRandom = (seed: string): (() => number) => {
   };
 };
 
+/**
+ * The baetyl stands at the centre of every context (the origin here); the visitor stands this far
+ * in front of it, at +z, looking at it.
+ */
+export const VISITOR_DISTANCE_M = 4;
+
+/** Keeps procedural pieces from being built where the visitor stands. */
+export const clearOfVisitor = (at: readonly [number, number], radius = 1.6): boolean =>
+  Math.hypot(at[0], at[1] - VISITOR_DISTANCE_M) > radius;
+
 /** Point on the ground at `distance` metres, `yawDeg` clockwise from straight ahead (-z). */
 export const pointAt = (yawDeg: number, distance: number): [number, number] => {
   const r = (yawDeg * Math.PI) / 180;
