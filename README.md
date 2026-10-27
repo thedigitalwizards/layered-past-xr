@@ -8,7 +8,6 @@ demo built on it.
 - Live demo: https://thedigitalwizards.github.io/layered-past-xr/
 - Editor for expert validation: https://thedigitalwizards.github.io/layered-past-xr/editor/
 - Repository: https://github.com/thedigitalwizards/layered-past-xr
-- Screenshot or short GIF: TODO, to be recorded on Chrome and Quest 3 and added as `docs/media/demo.gif`.
 
 > Demo content, procedural scenes and synthetic voices. This is not a reconstruction of any real site. The
 > "Demo Baetyl" and "Context A–C" are invented, every text is a placeholder until a heritage expert validates
@@ -20,7 +19,7 @@ A visitor stands before one central object that never moves, and travels through
 in: historical periods, or later receptions of it. The surroundings, the voices and the evidence change around
 the object. Each context is drawn in a style that follows how certain it is. Glowing points open the claims
 behind what is shown: who makes each claim, on what evidence, how certain it is, and whether an expert has
-approved it. It runs in a desktop or mobile browser and in VR on Meta Quest 3, with no install.
+approved it. It runs in a desktop or mobile browser, and is built for VR on Meta Quest 3 through WebXR, with no install.
 
 The framework knows nothing about any particular object, place or period. Each example supplies its own
 content, voices, scenery and object shape.
@@ -43,8 +42,9 @@ It is one repository and one build. The core will be split out and versioned onl
 - **Context switching around a persistent object.** A fixed central object; the visitor moves through
   contexts and the surroundings change around it, with a blend on the way from one to the next.
 - **360° exploration** in every context, in a browser or in VR.
-- **Certainty-based visual states.** Each context's look follows its certainty, and the central object has its
-  own certainty per context. Six states are defined (documented, interpreted, hypothesis, imagined, unknown,
+- **Certainty-based visual states.** Visual treatments communicate the certainty of individual claims,
+  elements and interpretive layers. The generic demo exaggerates this principle by giving each demo context
+  one dominant certainty state. Six states are defined (documented, interpreted, hypothesis, imagined, unknown,
   absent voice), each with a written label; three have their own surroundings so far.
 - **A structured claim model.** Every claim has a voice, evidence, a certainty and an approval status
   (draft, reviewed or approved, with reviewer and date). Experts review claims in a small editor, and the
@@ -60,11 +60,20 @@ dial, labelled "Pending heritage co-design", with no content: they stand for the
 | Context B    | imagined     | an engraving on sepia paper              | engraved, imagined    | European imagination   |
 | Context C    | absent voice | near-dark, dashed outlines on the ground | outline only, unknown | ancient self-depiction |
 
+## What this proof of concept does not demonstrate
+
+The demo is not an archaeological reconstruction and contains no final heritage interpretation. Its scenes,
+voices and central object are placeholders, designed only to validate the interaction, web and WebXR delivery,
+the evidence model and the expert-validation workflow. Historical content, periodisation, representation and
+the final interaction design will be developed through heritage co-design during the proposed project.
+Immersive use on a headset has not yet been validated.
+
 ## What exists, and what this adds
 
-Paradata tools such as Extended Matrix document how reliable each part of a 3D reconstruction is. Polyvocal
-heritage research works with several perspectives on the same heritage. This project links voice, evidence,
-certainty and expert approval at runtime, in WebXR, and carries the essential paradata inside the glTF files
+Approaches such as Extended Matrix use paradata to document the sources, interpretive decisions and
+reconstruction processes behind digital heritage representations. Polyvocal heritage research works with
+several perspectives on the same heritage. One Stone, Many Worlds builds on these principles by connecting
+voice, evidence, certainty and validation directly to the visitor experience at runtime, in WebXR, and carries the essential paradata inside the glTF files
 (`extras`), with a JSON-LD description alongside.
 
 ## Planned pilot
@@ -92,10 +101,10 @@ documented measurements with the heritage adviser.
 
 ## How heritage content will be produced
 
-A heritage adviser and a research assistant prepare and validate the evidence records for each context:
-claims, sources, voices and certainty. TDW implements the approved structures in WebXR. Decisions taken
-jointly are recorded alongside the content. Nothing is published as validated until it has been approved
-in the editor.
+Heritage content is co-developed through a documented heritage-technology workflow. The research assistant
+compiles sources, evidence records and metadata under the heritage adviser's supervision. The heritage adviser
+leads the historical and interpretive methodology and reviews heritage claims, while TDW translates the agreed
+structures into WebXR. Joint interpretive and technical decisions are recorded alongside the content.
 
 ## Controls
 
@@ -116,7 +125,8 @@ More detail in [docs/interaction.md](docs/interaction.md); the visual states in 
 - Every certainty state has a written label, never colour alone.
 - Keyboard: Enter begins, ← → move through time, Tab reaches the buttons and an _Inspect_ button for each
   detail of the current context, Esc closes a card.
-- Seated VR: if the headset starts below 1.35 m, the scene is lowered to standing eye height.
+- Seated VR: the experience can be used seated, with no physical movement required; when the headset starts at
+  seated height, the viewpoint is raised to the scene's eye level.
 - No forced movement: the visitor only looks around. Transitions respect `prefers-reduced-motion`.
 
 ## Run it
@@ -155,19 +165,23 @@ adb reverse tcp:5173 tcp:5173
 
 ## Tested devices
 
-| Device                   | OS       | Browser + version                                  | FPS                                    | Known issues                                      |
-| ------------------------ | -------- | -------------------------------------------------- | -------------------------------------- | ------------------------------------------------- |
-| Meta Quest 3             | TODO     | Meta Quest Browser TODO                            | TODO (target 72)                       | TODO                                              |
-| Android phone            | TODO     | Chrome TODO                                        | TODO (target 60)                       | TODO                                              |
-| Desktop                  | TODO     | Chrome TODO                                        | TODO                                   | TODO                                              |
-| Mac, Intel Iris Plus 640 | macOS 13 | Chromium 152 (embedded browser, development check) | 57.8 average, 59 at the 5th percentile | Measured on an earlier build; not a target device |
+| Device  | OS         | Browser            | Mode          | Result |
+| ------- | ---------- | ------------------ | ------------- | ------ |
+| Desktop | [OS]       | Chromium [version] | Non-immersive | Works  |
+| Desktop | [OS]       | Firefox [version]  | Non-immersive | Works  |
+| iPhone  | iOS 26.7.2 | Safari             | Non-immersive | Works  |
+
+iOS Safari has no WebXR, so the iPhone runs the non-immersive mode. Immersive validation on Meta Quest 3
+(target 72 FPS) and Android is planned for the first months of the funded project; headsets are budgeted.
 
 ## Roadmap
 
-- **Now: TRL 4.** The interaction and data model work with generic demo content, in a browser and in WebXR.
+- **Now: TRL 4.** The interaction and data model work with generic demo content in the browser. Immersive
+  WebXR is implemented but not yet validated on a headset.
 - **Framework.** During the funded project the core will be stabilised, documented and versioned as a
   reusable framework, and the Palaepaphos pilot will be built on top of it.
 - **Target: TRL 6.**
+  - Validate immersive use on Meta Quest 3 and Android (target 72 FPS in standalone VR).
   - Co-design the content with the heritage adviser.
   - Write and validate the final content for the nine contexts.
   - Work further on accessibility.
