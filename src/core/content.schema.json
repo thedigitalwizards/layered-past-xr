@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/thedigitalwizards/layered-past-xr/src/core/content.schema.json",
+  "title": "Layered past: content of one example",
+  "description": "A persistent central object, the voices that speak about it, and the contexts the visitor moves through around it. See docs/content-model.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["object", "voices", "contexts"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "object": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "title": { "$ref": "#/$defs/text" }
+      }
+    },
+    "voices": {
+      "description": "Who can speak: voice ids and their display labels. Contexts and claims refer to these ids.",
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "$ref": "#/$defs/id" },
+      "additionalProperties": { "$ref": "#/$defs/text" }
+    },
+    "pendingContexts": {
+      "description": "Contexts that are planned but have no content yet. Shown only as faint slots labelled \"Pending heritage co-design\"; they carry no claims.",
+      "type": "array",
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title"],
+        "properties": { "id": { "$ref": "#/$defs/id" }, "title": { "$ref": "#/$defs/text" } }
+      }
+    },
+    "contexts": {
+      "description": "Historical and reception contexts, in the order the visitor travels through them. After the last comes the first again.",
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 6,
+      "items": { "$ref": "#/$defs/context" }
+    }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "text": { "type": "string", "minLength": 1, "maxLength": 600 },
+    "voice": { "$ref": "#/$defs/id", "description": "A voice id declared in `voices`." },
+    "certainty": { "enum": ["documented", "interpreted", "hypothesis", "imagined", "unknown", "absent-voice"] },
+    "context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "period", "voice", "certainty", "audio", "objectState", "claims"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "title": { "$ref": "#/$defs/text" },
+        "period": { "$ref": "#/$defs/text" },
+        "voice": { "$ref": "#/$defs/voice" },
+        "certainty": { "$ref": "#/$defs/certainty" },
+        "audio": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["src", "caption", "synthetic"],
+          "properties": {
+            "src": {
+              "type": "string",
+              "pattern": "^audio/[a-z0-9-]+\\.(m4a|mp3)$",
+              "description": "Path under public/."
+            },
+            "caption": { "$ref": "#/$defs/text" },
+            "synthetic": {
+              "type": "boolean",
+              "description": "True for generated placeholder voices; shown under the caption."
+            }
+          }
+        },
+        "objectState": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "How the central object appears in this context, and how certain its presence and form are here.",
+          "required": ["style", "certainty"],
+          "properties": {
+            "style": { "enum": ["solid", "engraving", "outline"] },
+            "certainty": { "$ref": "#/$defs/certainty" }
+          }
+        },
+        "claims": { "type": "array", "minItems": 1, "maxItems": 6, "items": { "$ref": "#/$defs/claim" } }
+      }
+    },
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "anchor", "text", "voice", "certainty", "evidence", "approval"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 60 },
+        "anchor": {
+          "type": "array",
+          "items": { "type": "number" },
+          "minItems": 3,
+          "maxItems": 3,
+          "description": "Position of the glowing point in metres [x, y, z]; the visitor stands at the origin, y is up."
+        },
+        "text": { "$ref": "#/$defs/text" },
+        "voice": { "$ref": "#/$defs/voice" },
+        "certainty": { "$ref": "#/$defs/certainty" },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["citation", "url", "licence"],
+            "properties": {
+              "citation": { "$ref": "#/$defs/text" },
+              "url": { "type": ["string", "null"], "pattern": "^https?://" },
+              "licence": { "type": ["string", "null"] }
+            }
+          }
+        },
+        "approval": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "by", "date"],
+          "properties": {
+            "status": { "enum": ["draft", "reviewed", "approved"] },
+            "by": { "type": ["string", "null"] },
+            "date": { "type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$" }
+          }
+        }
+      }
+    }
+  }
+}

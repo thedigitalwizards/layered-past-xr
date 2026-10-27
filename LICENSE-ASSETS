@@ -4,13 +4,14 @@ https://creativecommons.org/licenses/by/4.0/legalcode
 Covered
 -------
 
-- content/demo.json (texts and world definitions)
-- schema/demo.schema.json (descriptions)
+- examples/demo/ (the demo's content, texts, scenery and the shape of its central object)
+- src/core/content.schema.json (descriptions)
 - docs/
-- public/audio/ (the three demo voices, see below)
+- examples/demo/public/audio/ (the three demo voices, see below)
 - The procedural scenes as rendered or exported (export/*.glb, export/demo.jsonld)
 
-All source code is licensed separately under the Apache License 2.0 (see LICENSE).
+All source code (src/, scripts/, tests/ and the code files in examples/) is licensed under the Apache
+License 2.0 (see LICENSE).
 
 Everything visual is made in code: procedural geometry, shaders and canvas textures. The repository contains
 no third-party images, photographs, plans, engravings, coin images or downloaded models, and no
@@ -19,7 +20,7 @@ AI-generated images. All texts are placeholders pending heritage expert validati
 Synthetic voices
 ----------------
 
-public/audio/world-a.m4a, world-b.m4a and world-c.m4a are synthetic placeholder voices, generated with a
+examples/demo/public/audio/context-a.m4a, context-b.m4a and context-c.m4a are synthetic placeholder voices, generated with a
 text-to-speech model and labelled "Synthetic placeholder voice" wherever they play.
 
 Model: Kokoro-82M

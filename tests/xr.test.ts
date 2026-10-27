@@ -1,19 +1,19 @@
-import { Quaternion, Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
-import { minFontPx, wrapText } from '../src/canvas-text.ts';
-import { twistDegrees } from '../src/xr.ts';
+import { minFontPx, wrapText } from '../src/core/canvas-text.ts';
+import { stickStep } from '../src/core/xr.ts';
 
-const about = (axis: [number, number, number], deg: number) =>
-  new Quaternion().setFromAxisAngle(new Vector3(...axis).normalize(), (deg * Math.PI) / 180);
-
-describe('wrist twist', () => {
-  it('measures clockwise twist (seen by the visitor) as positive', () => {
-    expect(twistDegrees(new Quaternion(), about([0, 0, -1], 30))).toBeCloseTo(30);
-    expect(twistDegrees(new Quaternion(), about([0, 0, -1], -45))).toBeCloseTo(-45);
-  });
-
-  it('ignores pointing the hand elsewhere without twisting', () => {
-    expect(twistDegrees(new Quaternion(), about([0, 1, 0], 40))).toBeCloseTo(0);
+describe('thumbstick', () => {
+  it('steps once per push, and needs to come back to centre before the next step', () => {
+    let armed = true;
+    const push = (x: number) => {
+      const r = stickStep(x, armed);
+      armed = r.armed;
+      return r.step;
+    };
+    expect(push(0.9)).toBe(1);
+    expect(push(0.95)).toBe(0);
+    expect(push(0.1)).toBe(0);
+    expect(push(-0.8)).toBe(-1);
   });
 });
 
