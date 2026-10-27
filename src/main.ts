@@ -1,5 +1,4 @@
 import { Group } from 'three';
-import './styles.css';
 import { baetylShape } from '../examples/demo/baetyl.ts';
 import rawContent from '../examples/demo/content.json';
 import { demoScenery } from '../examples/demo/scenery.ts';
