@@ -166,11 +166,11 @@ adb reverse tcp:5173 tcp:5173
 
 ## Tested devices
 
-| Device  | OS         | Browser            | Mode          | Result |
-| ------- | ---------- | ------------------ | ------------- | ------ |
-| Desktop | [OS]       | Chromium [version] | Non-immersive | Works  |
-| Desktop | [OS]       | Firefox [version]  | Non-immersive | Works  |
-| iPhone  | iOS 26.7.2 | Safari             | Non-immersive | Works  |
+| Device  | OS           | Browser                                  | Mode          | Result |
+| ------- | ------------ | ---------------------------------------- | ------------- | ------ |
+| Desktop | macOS 13.6.7 | Brave 1.92.140 (Chromium 150.0.7871.125) | Non-immersive | Works  |
+| Desktop | macOS 13.6.7 | Firefox 160.0b1                          | Non-immersive | Works  |
+| iPhone  | iOS 26.7.2   | Safari                                   | Non-immersive | Works  |
 
 iOS Safari has no WebXR, so the iPhone runs the non-immersive mode. Immersive validation on Meta Quest 3
 (target 72 FPS) and Android is planned for the first months of the funded project; headsets are budgeted.
