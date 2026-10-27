@@ -17,7 +17,7 @@ demo built on it.
 
 A visitor stands before one central object that never moves, and travels through the contexts it has been seen
 in: historical periods, or later receptions of it. The surroundings, the voices and the evidence change around
-the object. Each context is drawn in a style that follows how certain it is. Glowing points open the claims
+the object. Visual treatments communicate the certainty of individual claims, elements and interpretive layers. Glowing points open the claims
 behind what is shown: who makes each claim, on what evidence, how certain it is, and whether an expert has
 approved it. It runs in a desktop or mobile browser, and is built for VR on Meta Quest 3 through WebXR, with no install.
 
@@ -41,7 +41,8 @@ It is one repository and one build. The core will be split out and versioned onl
 
 - **Context switching around a persistent object.** A fixed central object; the visitor moves through
   contexts and the surroundings change around it, with a blend on the way from one to the next.
-- **360° exploration** in every context, in a browser or in VR.
+- **360° exploration** in every context in non-immersive browser mode. Immersive WebXR support is
+  implemented but awaits validation on a headset.
 - **Certainty-based visual states.** Visual treatments communicate the certainty of individual claims,
   elements and interpretive layers. The generic demo exaggerates this principle by giving each demo context
   one dominant certainty state. Six states are defined (documented, interpreted, hypothesis, imagined, unknown,
@@ -101,7 +102,7 @@ documented measurements with the heritage adviser.
 
 ## How heritage content will be produced
 
-Heritage content is co-developed through a documented heritage-technology workflow. The research assistant
+Heritage content is co-developed through a documented heritage-technology workflow. The research associate
 compiles sources, evidence records and metadata under the heritage adviser's supervision. The heritage adviser
 leads the historical and interpretive methodology and reviews heritage claims, while TDW translates the agreed
 structures into WebXR. Joint interpretive and technical decisions are recorded alongside the content.
@@ -125,8 +126,8 @@ More detail in [docs/interaction.md](docs/interaction.md); the visual states in 
 - Every certainty state has a written label, never colour alone.
 - Keyboard: Enter begins, ← → move through time, Tab reaches the buttons and an _Inspect_ button for each
   detail of the current context, Esc closes a card.
-- Seated VR: the experience can be used seated, with no physical movement required; when the headset starts at
-  seated height, the viewpoint is raised to the scene's eye level.
+- Seated VR support: no physical movement is required. The implemented seated-height adjustment will be
+  validated during on-device immersive testing.
 - No forced movement: the visitor only looks around. Transitions respect `prefers-reduced-motion`.
 
 ## Run it
