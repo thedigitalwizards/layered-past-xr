@@ -1,9 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import type { Content } from '../src/content.ts';
-import { toJsonLd } from '../src/jsonld.ts';
+import type { Content } from '../src/core/content.ts';
+import { toJsonLd } from '../src/core/jsonld.ts';
 
-const content = JSON.parse(readFileSync(new URL('../content/demo.json', import.meta.url), 'utf8')) as Content;
+const content = JSON.parse(readFileSync(new URL('../examples/demo/content.json', import.meta.url), 'utf8')) as Content;
 
 describe('JSON-LD paradata', () => {
   const graph = toJsonLd(content, (id) => `${id}.glb`)['@graph'] as Record<string, unknown>[];

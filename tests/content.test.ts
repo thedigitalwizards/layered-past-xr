@@ -1,12 +1,14 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { applyOverrides, approve, markReviewed, parseOverrides, today } from '../src/approvals.ts';
-import { approvalLabel, findClaim, type Content } from '../src/content.ts';
-import { validateContent } from '../src/validate.ts';
+import { applyOverrides, approve, markReviewed, parseOverrides, today } from '../src/core/approvals.ts';
+import { approvalLabel, findClaim, type Content } from '../src/core/content.ts';
+import { validateContent } from '../src/core/validate.ts';
 
-const demo = () => JSON.parse(readFileSync(new URL('../content/demo.json', import.meta.url), 'utf8'));
+const demo = () => JSON.parse(readFileSync(new URL('../examples/demo/content.json', import.meta.url), 'utf8'));
 const errors = (data: unknown) => {
-  const result = validateContent(data, (path) => existsSync(new URL(`../public/${path}`, import.meta.url)));
+  const result = validateContent(data, (path) =>
+    existsSync(new URL(`../examples/demo/public/${path}`, import.meta.url)),
+  );
   return result.ok ? [] : result.errors;
 };
 
@@ -15,12 +17,17 @@ describe('content validation', () => {
     expect(errors(demo())).toEqual([]);
   });
 
-  it('rejects unknown voices, certainties and approval states', () => {
+  it('rejects unknown certainties and approval states', () => {
     const data = demo();
-    data.contexts[0].voice = 'narrator';
     data.contexts[0].claims[0].certainty = 'probable';
     data.contexts[1].claims[0].approval.status = 'signed';
-    expect(errors(data)).toHaveLength(3);
+    expect(errors(data)).toHaveLength(2);
+  });
+
+  it('rejects voices that are not declared in voices', () => {
+    const data = demo();
+    data.contexts[0].voice = 'narrator';
+    expect(errors(data)).toEqual(['context "context-a": voice "narrator" is not declared in voices']);
   });
 
   it('rejects a context whose certainty has no context style yet', () => {
@@ -36,7 +43,7 @@ describe('content validation', () => {
     data.contexts[2].claims[0].approval = { status: 'approved', by: null, date: null };
     expect(errors(data)).toEqual([
       'duplicate claim id "a-1"',
-      'context "context-a": audio file public/audio/missing.m4a not found',
+      'context "context-a": audio file audio/missing.m4a not found',
       'claim "c-1": a approved claim needs "by" and "date"',
     ]);
   });

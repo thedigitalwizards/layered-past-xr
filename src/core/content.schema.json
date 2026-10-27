@@ -1,11 +1,11 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/thedigitalwizards/layered-past-xr/schema/demo.schema.json",
-  "title": "One Stone, Many Worlds — demo content",
-  "description": "A persistent object (the baetyl) and the historical and reception contexts the visitor moves through around it. See docs/content-model.md.",
+  "$id": "https://github.com/thedigitalwizards/layered-past-xr/src/core/content.schema.json",
+  "title": "Layered past: content of one example",
+  "description": "A persistent central object, the voices that speak about it, and the contexts the visitor moves through around it. See docs/content-model.md.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["object", "contexts"],
+  "required": ["object", "voices", "contexts"],
   "properties": {
     "$schema": { "type": "string" },
     "object": {
@@ -17,8 +17,15 @@
         "title": { "$ref": "#/$defs/text" }
       }
     },
+    "voices": {
+      "description": "Who can speak: voice ids and their display labels. Contexts and claims refer to these ids.",
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "$ref": "#/$defs/id" },
+      "additionalProperties": { "$ref": "#/$defs/text" }
+    },
     "pendingContexts": {
-      "description": "Contexts planned for the pilot but not yet co-designed with the heritage adviser. Shown only as faint slots labelled \"Pending heritage co-design\"; they carry no claims.",
+      "description": "Contexts that are planned but have no content yet. Shown only as faint slots labelled \"Pending heritage co-design\"; they carry no claims.",
       "type": "array",
       "maxItems": 8,
       "items": {
@@ -39,23 +46,12 @@
   "$defs": {
     "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
     "text": { "type": "string", "minLength": 1, "maxLength": 600 },
-    "voice": {
-      "enum": [
-        "archaeology",
-        "ancient-self-depiction",
-        "european-imagination",
-        "excavators",
-        "community-gc",
-        "community-tc",
-        "institution",
-        "tourism"
-      ]
-    },
+    "voice": { "$ref": "#/$defs/id", "description": "A voice id declared in `voices`." },
     "certainty": { "enum": ["documented", "interpreted", "hypothesis", "imagined", "unknown", "absent-voice"] },
     "context": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "title", "period", "voice", "certainty", "audio", "baetyl", "claims"],
+      "required": ["id", "title", "period", "voice", "certainty", "audio", "objectState", "claims"],
       "properties": {
         "id": { "$ref": "#/$defs/id" },
         "title": { "$ref": "#/$defs/text" },
@@ -79,10 +75,10 @@
             }
           }
         },
-        "baetyl": {
+        "objectState": {
           "type": "object",
           "additionalProperties": false,
-          "description": "How the baetyl appears in this context, and how certain its presence and form are here.",
+          "description": "How the central object appears in this context, and how certain its presence and form are here.",
           "required": ["style", "certainty"],
           "properties": {
             "style": { "enum": ["solid", "engraving", "outline"] },

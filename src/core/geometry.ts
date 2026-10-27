@@ -26,7 +26,7 @@ export const seededRandom = (seed: string): (() => number) => {
 };
 
 /**
- * The baetyl stands at the centre of every context (the origin here); the visitor stands this far
+ * The central object stands at the centre of every context (the origin here); the visitor stands this far
  * in front of it, at +z, looking at it.
  */
 export const VISITOR_DISTANCE_M = 4;

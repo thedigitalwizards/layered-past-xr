@@ -1,4 +1,4 @@
-// Expert approvals are kept as overrides on top of content/demo.json, so the content file stays
+// Expert approvals are kept as overrides on top of an example's content.json, so the content file stays
 // the source of truth and the editor's changes can be exported or thrown away.
 import type { Approval, Content } from './content.ts';
 

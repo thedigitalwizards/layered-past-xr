@@ -1,6 +1,6 @@
 // The lens card: the claim behind a detail. A bottom sheet with title, certainty, text, voice,
 // source and approval note. Closes with Esc, a click outside, or a swipe down.
-import { approvalLabel, findClaim, isApproved, VOICE_LABELS, type Content } from '../content.ts';
+import { approvalLabel, findClaim, isApproved, voiceLabel, type Content } from '../content.ts';
 import type { Store } from '../state.ts';
 import { certaintyPill } from './certainty-pill.ts';
 import { h } from './dom.ts';
@@ -47,7 +47,7 @@ export const mountLensCard = (card: HTMLElement, store: Store): LensCard => {
         h('span', { className: 'card__handle', 'aria-hidden': 'true' }),
         h('div', { className: 'card__head' }, title, certaintyPill(claim.certainty)),
         h('p', { className: 'card__text' }, claim.text),
-        h('p', { className: 'card__meta' }, `Voice · ${VOICE_LABELS[claim.voice]}`),
+        h('p', { className: 'card__meta' }, `Voice · ${voiceLabel(content, claim.voice)}`),
         ...(claim.evidence.length
           ? claim.evidence.map((e) =>
               h(

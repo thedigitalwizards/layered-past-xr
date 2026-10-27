@@ -9,7 +9,7 @@ publishes them under `/export/`.
 | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | `context-a` (root)                          | the context: id, title, period, voice, certainty, style; the object; the voice caption and whether it is synthetic |
 | `claim-a-1`, … (empty nodes at each anchor) | the whole claim: title, text, voice, certainty, evidence, approval                                                 |
-| `demo-stone`                                | the baetyl and its look and certainty in this context (`baetyl`)                                                   |
+| `demo-stone`                                | the central object and its look and certainty in this context (`objectState`)                                      |
 | `ground`, `hills`, `structures`, …          | style and certainty                                                                                                |
 
 The materials are flat colours. The stylised look comes from runtime shaders that a glTF viewer cannot run.
@@ -21,7 +21,7 @@ CIDOC-CRM profile.
 
 | Our term                            | JSON-LD                                          | Europeana EDM            | CIDOC-CRM                        |
 | ----------------------------------- | ------------------------------------------------ | ------------------------ | -------------------------------- |
-| Object (the baetyl)                 | `edm:ProvidedCHO`, `crm:E22_Human-Made_Object`   | `edm:ProvidedCHO`        | E22 Human-Made Object            |
+| Central object                      | `edm:ProvidedCHO`, `crm:E22_Human-Made_Object`   | `edm:ProvidedCHO`        | E22 Human-Made Object            |
 | Voice                               | `crm:E39_Actor`                                  | `edm:Agent`              | E39 Actor                        |
 | Claim                               | `crm:E13_Attribute_Assignment`                   | —                        | E13 Attribute Assignment         |
 | Claim → object                      | `crm:P140_assigned_attribute_to`                 | —                        | P140 assigned attribute to       |

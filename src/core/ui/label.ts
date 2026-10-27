@@ -37,7 +37,12 @@ export const mountLabel = (host: HTMLElement, content: Content): Label => {
             'div',
             { className: 'label__context' },
             h('p', {}, h('span', {}, `${context.title} · ${context.period}`), certaintyPill(context.certainty)),
-            h('p', { className: 'label__baetyl' }, h('span', {}, 'Baetyl'), certaintyPill(context.baetyl.certainty)),
+            h(
+              'p',
+              { className: 'label__object' },
+              h('span', {}, content.object.title),
+              certaintyPill(context.objectState.certainty),
+            ),
           ),
         ),
       );

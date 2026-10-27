@@ -1,8 +1,18 @@
 {
-  "$schema": "../schema/demo.schema.json",
+  "$schema": "../../src/core/content.schema.json",
   "object": {
     "id": "demo-stone",
     "title": "Demo Baetyl"
+  },
+  "voices": {
+    "archaeology": "Archaeology",
+    "ancient-self-depiction": "Ancient self-depiction",
+    "european-imagination": "European imagination",
+    "excavators": "Excavators",
+    "community-gc": "Greek Cypriot community",
+    "community-tc": "Turkish Cypriot community",
+    "institution": "Institution",
+    "tourism": "Tourism"
   },
   "contexts": [
     {
@@ -83,7 +93,7 @@
           }
         }
       ],
-      "baetyl": {
+      "objectState": {
         "style": "solid",
         "certainty": "documented"
       }
@@ -161,7 +171,7 @@
           }
         }
       ],
-      "baetyl": {
+      "objectState": {
         "style": "engraving",
         "certainty": "imagined"
       }
@@ -213,7 +223,7 @@
           }
         }
       ],
-      "baetyl": {
+      "objectState": {
         "style": "outline",
         "certainty": "unknown"
       }

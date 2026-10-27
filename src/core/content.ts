@@ -1,23 +1,14 @@
-// Types for content/demo.json (keep in sync with schema/demo.schema.json) and pure selectors.
-// A context is one historical or reception context the baetyl is seen in.
+// Types for an example's content.json (keep in sync with content.schema.json) and pure selectors.
+// A context is one historical or reception context the central object is seen in.
 
-export const VOICES = [
-  'archaeology',
-  'ancient-self-depiction',
-  'european-imagination',
-  'excavators',
-  'community-gc',
-  'community-tc',
-  'institution',
-  'tourism',
-] as const;
-export type Voice = (typeof VOICES)[number];
+/** A voice id, declared with its label in the content's `voices`. */
+export type Voice = string;
 
 export const CERTAINTIES = ['documented', 'interpreted', 'hypothesis', 'imagined', 'unknown', 'absent-voice'] as const;
 export type Certainty = (typeof CERTAINTIES)[number];
 
-export const BAETYL_STYLES = ['solid', 'engraving', 'outline'] as const;
-export type BaetylStyle = (typeof BAETYL_STYLES)[number];
+export const OBJECT_STYLES = ['solid', 'engraving', 'outline'] as const;
+export type ObjectStyle = (typeof OBJECT_STYLES)[number];
 
 export type ApprovalStatus = 'draft' | 'reviewed' | 'approved';
 export type Approval = { readonly status: ApprovalStatus; readonly by: string | null; readonly date: string | null };
@@ -42,8 +33,8 @@ export type Context = {
   readonly voice: Voice;
   readonly certainty: Certainty;
   readonly audio: { readonly src: string; readonly caption: string; readonly synthetic: boolean };
-  /** The baetyl's own look and certainty can differ from the context's (e.g. unknown where it is not attested). */
-  readonly baetyl: { readonly style: BaetylStyle; readonly certainty: Certainty };
+  /** The central object's own look and certainty here; it can differ from the context's (e.g. unknown where it is not attested). */
+  readonly objectState: { readonly style: ObjectStyle; readonly certainty: Certainty };
   readonly claims: readonly Claim[];
 };
 
@@ -51,6 +42,7 @@ export type PendingContext = { readonly id: string; readonly title: string };
 
 export type Content = {
   readonly object: { readonly id: string; readonly title: string };
+  readonly voices: Readonly<Record<Voice, string>>;
   readonly contexts: readonly Context[];
   /** Planned contexts with no content yet (see schema). */
   readonly pendingContexts?: readonly PendingContext[];
@@ -81,13 +73,5 @@ export const approvalLabel = (approval: Approval): string => {
   }
 };
 
-export const VOICE_LABELS: Readonly<Record<Voice, string>> = {
-  archaeology: 'Archaeology',
-  'ancient-self-depiction': 'Ancient self-depiction',
-  'european-imagination': 'European imagination',
-  excavators: 'Excavators',
-  'community-gc': 'Greek Cypriot community',
-  'community-tc': 'Turkish Cypriot community',
-  institution: 'Institution',
-  tourism: 'Tourism',
-};
+/** The display label of a voice; falls back to the id. */
+export const voiceLabel = (content: Content, voice: Voice): string => content.voices[voice] ?? voice;

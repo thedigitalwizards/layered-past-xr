@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { minFontPx, wrapText } from '../src/canvas-text.ts';
-import { stickStep } from '../src/xr.ts';
+import { minFontPx, wrapText } from '../src/core/canvas-text.ts';
+import { stickStep } from '../src/core/xr.ts';
 
 describe('thumbstick', () => {
   it('steps once per push, and needs to come back to centre before the next step', () => {

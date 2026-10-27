@@ -1,4 +1,4 @@
-// Immersive VR on Quest. The baetyl stands in front of the visitor; the thumbstick moves through
+// Immersive VR on Quest. The central object stands in front of the visitor; the thumbstick moves through
 // time one context at a time; pointing and pulling the trigger opens a claim. Captions follow the
 // view at a comfortable distance.
 import {
@@ -16,7 +16,7 @@ import {
 } from 'three';
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory.js';
 import { CERTAINTY_COLOURS, CERTAINTY_LABELS } from './certainty.ts';
-import { approvalLabel, findClaim, VOICE_LABELS, type Content } from './content.ts';
+import { approvalLabel, findClaim, voiceLabel, type Content } from './content.ts';
 import { createPanel, minFontPx, PANEL_COLOURS, type Run } from './canvas-text.ts';
 import type { Dial } from './dial.ts';
 import type { Lens } from './lens.ts';
@@ -79,15 +79,15 @@ const captionRuns = (content: Content, weights: readonly number[], hint: boolean
         gapAfter: 6,
       },
       {
-        text: `Baetyl: ${CERTAINTY_LABELS[context.baetyl.certainty]}`,
+        text: `${content.object.title}: ${CERTAINTY_LABELS[context.objectState.certainty]}`,
         px,
         font: 'label',
-        pill: CERTAINTY_COLOURS[context.baetyl.certainty],
+        pill: CERTAINTY_COLOURS[context.objectState.certainty],
         gapAfter: 10,
       },
       { text: context.audio.caption, px: Math.round(px * 1.15), gapAfter: 6, alpha: i ? 0.7 : 1 },
       {
-        text: `${VOICE_LABELS[context.voice]}${context.audio.synthetic ? ' · Synthetic placeholder voice' : ''}`,
+        text: `${voiceLabel(content, context.voice)}${context.audio.synthetic ? ' · Synthetic placeholder voice' : ''}`,
         px: Math.round(px * 0.85),
         font: 'label',
         colour: PANEL_COLOURS.muted,
@@ -183,7 +183,7 @@ export const setupXr = (o: XrOptions): Xr => {
       },
       { text: claim.text, px: Math.round(cardPx * 1.1), gapAfter: 18 },
       {
-        text: `Voice · ${VOICE_LABELS[claim.voice]}`,
+        text: `Voice · ${voiceLabel(o.content(), claim.voice)}`,
         px: cardPx,
         font: 'label',
         colour: PANEL_COLOURS.muted,
@@ -229,7 +229,7 @@ export const setupXr = (o: XrOptions): Xr => {
       renderer.xr.getCamera().getWorldPosition(head);
       const started = o.store.get().started;
 
-      // Once the headset pose has settled: turn the scene so the baetyl stands in front of the
+      // Once the headset pose has settled: turn the scene so the central object stands in front of the
       // visitor, wherever they face, and give seated visitors standing eye height.
       if (calibrateIn > 0 && --calibrateIn === 0) {
         const dir = lookFlat();
@@ -258,7 +258,7 @@ export const setupXr = (o: XrOptions): Xr => {
           { text: 'Pull the trigger', px: beginPx, font: 'label', colour: PANEL_COLOURS.muted },
         ]);
         beginPanel.mesh.userData.drawn = true;
-        // Above the baetyl, facing the visitor.
+        // Above the central object, facing the visitor.
         const dir = lookFlat();
         beginPanel.mesh.position.copy(head).addScaledVector(dir, 2.5);
         beginPanel.mesh.position.y = head.y + 0.35;

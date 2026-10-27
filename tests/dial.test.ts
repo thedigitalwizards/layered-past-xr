@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { speakingContext } from '../src/audio.ts';
-import { contextWeights, createDial, nearestContext, TRANSITION_MS } from '../src/dial.ts';
+import { speakingContext } from '../src/core/audio.ts';
+import { contextWeights, createDial, nearestContext, TRANSITION_MS } from '../src/core/dial.ts';
 
 describe('context weights', () => {
   it('is one world at a whole number', () => {

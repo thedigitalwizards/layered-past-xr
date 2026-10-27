@@ -1,7 +1,7 @@
 // A minimal JSON-LD description of the object, its contexts and their claims, mapped where possible
 // to Europeana EDM and CIDOC-CRM (see docs/paradata-mapping.md). Our own terms use the `lpx:` prefix.
 import { CERTAINTY_LABELS, WORLD_STYLES } from './certainty.ts';
-import { VOICE_LABELS, type Content } from './content.ts';
+import { voiceLabel, type Content } from './content.ts';
 
 const BASE = 'urn:layered-past-xr';
 
@@ -20,7 +20,7 @@ export const toJsonLd = (content: Content, assetFor: (worldId: string) => string
       ...voices.map((voice) => ({
         '@id': `${BASE}:voice:${voice}`,
         '@type': 'crm:E39_Actor',
-        'dc:title': VOICE_LABELS[voice],
+        'dc:title': voiceLabel(content, voice),
       })),
       ...content.contexts.map((context) => ({
         '@id': `${BASE}:context:${context.id}`,
@@ -30,7 +30,7 @@ export const toJsonLd = (content: Content, assetFor: (worldId: string) => string
         'lpx:voice': { '@id': `${BASE}:voice:${context.voice}` },
         'lpx:certainty': CERTAINTY_LABELS[context.certainty],
         'lpx:style': WORLD_STYLES[context.certainty],
-        'lpx:baetylCertainty': CERTAINTY_LABELS[context.baetyl.certainty],
+        'lpx:objectCertainty': CERTAINTY_LABELS[context.objectState.certainty],
         'lpx:syntheticVoice': context.audio.synthetic,
         'lpx:about': { '@id': object },
         'edm:hasView': assetFor(context.id),

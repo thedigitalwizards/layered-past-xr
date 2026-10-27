@@ -17,20 +17,20 @@ alone.
 Claims can use any certainty (it is shown on the lens card). A _context_ can only use a certainty whose
 surroundings exist: the build fails otherwise, with a message saying which style is missing.
 
-## The baetyl has its own certainty
+## The central object has its own certainty
 
-The baetyl stays at the centre in every context, but how certain its presence and form are can differ from
+The central object stays at the centre in every context, but how certain its presence and form are can differ from
 the context's certainty. For example, it can be _unknown_ in a context where it is not attested. Its look
-and its certainty are set per context in `baetyl` (see [content-model.md](content-model.md)), and the
-label always shows both: the context's certainty and the baetyl's.
+and its certainty are set per context in `objectState` (see [content-model.md](content-model.md)), and the
+label always shows both: the context's certainty and the object's.
 
-| `baetyl.style` | Look                                                                      |
-| -------------- | ------------------------------------------------------------------------- |
-| `solid`        | Matte, dark green-grey stone with a fine speckle, on a low base           |
-| `engraving`    | Drawn in the engraving style, smoother, with a faint gold rim (idealised) |
-| `outline`      | An outline only, barely visible                                           |
+| `objectState.style` | Look                                                                      |
+| ------------------- | ------------------------------------------------------------------------- |
+| `solid`             | Matte, dark green-grey stone with a fine speckle, on a low base           |
+| `engraving`         | Drawn in the engraving style, smoother, with a faint gold rim (idealised) |
+| `outline`           | An outline only, barely visible                                           |
 
-In the demo the baetyl is _documented_ in Context A, _imagined_ in Context B and _unknown_ in Context C.
+In the demo the central object, a baetyl, is _documented_ in Context A, _imagined_ in Context B and _unknown_ in Context C.
 
 ## How two contexts are blended
 
@@ -38,8 +38,7 @@ On the way from one context to the next, both are visible at once. Instead of tr
 draws a share of the pixels in an ordered dither pattern, and neighbouring contexts use complementary
 patterns. Together they cover every pixel exactly once, so there are no sorting problems and no flicker
 between two skies, and it costs no more than drawing one context. A context with no share is not drawn at
-all. The baetyl's looks share their context's pattern, so the baetyl blends in step with its surroundings.
+all. The object's looks share their context's pattern, so the object blends in step with its surroundings.
 
-The shaders are in `src/worlds/blend.ts` (shared), `src/worlds/solid.ts`, `src/worlds/engraving.ts`,
-`src/worlds/absent.ts` and `src/baetyl.ts`. In the code, a "world" is the rendered surroundings of one
+The shaders are in `src/core/blend.ts` (shared), `src/core/styles/` and `src/core/central-object.ts`. In the code, a "world" is the rendered surroundings of one
 context.

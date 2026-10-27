@@ -1,29 +1,31 @@
 import { Group } from 'three';
 import './styles.css';
-import rawContent from '../content/demo.json';
-import { applyOverrides, loadOverrides, STORAGE_KEY } from './approvals.ts';
-import { createVoices } from './audio.ts';
-import { createBaetyl } from './baetyl.ts';
-import type { Content } from './content.ts';
-import { attachControls } from './controls.ts';
-import { mountDebug } from './debug.ts';
-import { createDial, nearestContext, TRANSITION_MS, contextWeights } from './dial.ts';
-import { createLens } from './lens.ts';
-import { createLook } from './look.ts';
-import { createStage } from './scene.ts';
-import { createStore, initialState } from './state.ts';
-import { createTimeDial } from './time-dial.ts';
-import { mountSoundButton } from './ui/buttons.ts';
-import { mountCaption } from './ui/caption.ts';
-import { mountClaimsNav } from './ui/claims-nav.ts';
-import { byId } from './ui/dom.ts';
-import { mountLabel } from './ui/label.ts';
-import { mountLensCard } from './ui/lens-card.ts';
-import { mountPrompt } from './ui/prompt.ts';
-import { reveal } from './worlds/blend.ts';
-import { VISITOR_DISTANCE_M } from './worlds/pieces.ts';
-import { buildWorld, setWorldWeight } from './worlds/world.ts';
-import { setupXr } from './xr.ts';
+import { baetylShape } from '../examples/demo/baetyl.ts';
+import rawContent from '../examples/demo/content.json';
+import { demoScenery } from '../examples/demo/scenery.ts';
+import { applyOverrides, loadOverrides, STORAGE_KEY } from './core/approvals.ts';
+import { createVoices } from './core/audio.ts';
+import { createCentralObject } from './core/central-object.ts';
+import type { Content } from './core/content.ts';
+import { attachControls } from './core/controls.ts';
+import { mountDebug } from './core/debug.ts';
+import { createDial, nearestContext, TRANSITION_MS, contextWeights } from './core/dial.ts';
+import { createLens } from './core/lens.ts';
+import { createLook } from './core/look.ts';
+import { createStage } from './core/scene.ts';
+import { createStore, initialState } from './core/state.ts';
+import { createTimeDial } from './core/time-dial.ts';
+import { mountSoundButton } from './core/ui/buttons.ts';
+import { mountCaption } from './core/ui/caption.ts';
+import { mountClaimsNav } from './core/ui/claims-nav.ts';
+import { byId } from './core/ui/dom.ts';
+import { mountLabel } from './core/ui/label.ts';
+import { mountLensCard } from './core/ui/lens-card.ts';
+import { mountPrompt } from './core/ui/prompt.ts';
+import { reveal } from './core/blend.ts';
+import { VISITOR_DISTANCE_M } from './core/geometry.ts';
+import { buildWorld, setWorldWeight } from './core/surroundings.ts';
+import { setupXr } from './core/xr.ts';
 
 // Validated against schema/demo.schema.json at build time (vite.config.ts).
 const baseContent = rawContent as unknown as Content;
@@ -38,12 +40,13 @@ const { renderer, scene, camera, world } = stage;
 const site = new Group();
 site.position.set(0, 0, -VISITOR_DISTANCE_M);
 world.add(site);
-const worlds = content.contexts.map(buildWorld);
+const worlds = content.contexts.map((context, i) => buildWorld(context, i, demoScenery));
 worlds.forEach((w) => site.add(w.group));
 site.add(
-  createBaetyl(
+  createCentralObject(
     content.contexts,
     worlds.map((w) => w.blend),
+    baetylShape,
   ),
 );
 const lens = createLens(content);

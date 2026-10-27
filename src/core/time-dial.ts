@@ -1,14 +1,14 @@
-// A small dial floating beside the baetyl: the journey through time as a row of slots. The demo
+// A small dial floating beside the central object: the journey through time as a row of slots. The demo
 // contexts can be pressed (pointed at and triggered in VR, clicked or tapped elsewhere); the
-// contexts still to be co-designed with the heritage adviser appear only as faint outlines.
+// contexts that are planned but have no content yet appear only as faint outlines.
 import { CanvasTexture, Group, Mesh, MeshBasicMaterial, PlaneGeometry, SRGBColorSpace } from 'three';
 import { minFontPx, PANEL_COLOURS, SANS } from './canvas-text.ts';
 import type { Content } from './content.ts';
-import { VISITOR_DISTANCE_M } from './worlds/pieces.ts';
+import { VISITOR_DISTANCE_M } from './geometry.ts';
 
 const PX_PER_M = 1000;
 const WIDTH_M = 1.1;
-/** Beside the baetyl and a little in front of it, at hand height, in site coordinates. */
+/** Beside the central object and a little in front of it, at hand height, in site coordinates. */
 const POSITION = [0.95, 1.15, 2.1] as const;
 const VIEW_DISTANCE_M = Math.hypot(POSITION[0], VISITOR_DISTANCE_M - POSITION[2]);
 const PX = minFontPx(PX_PER_M, VIEW_DISTANCE_M);
